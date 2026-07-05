@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXORA | Client Portal Login</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --midnight-navy: #0F172A;
+            --luxury-gold: #C8A96A;
+            --pure-white: #F8FAFC;
+            --slate-800: #1E293B;
+            --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--midnight-navy);
+            color: var(--pure-white);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at center, rgba(200, 169, 106, 0.05) 0%, transparent 60%);
+        }
+
+        /* حاوية المصادقة */
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+        }
+
+        /* الخط الذهبي العلوي */
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--luxury-gold);
+        }
+
+        /* الشعار المصغر */
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+
+        .icon-n {
+            background: var(--pure-white);
+            width: 35px; height: 35px;
+            position: relative;
+            clip-path: polygon(0 0, 40% 0, 100% 60%, 100% 100%, 60% 100%, 0 40%);
+        }
+        
+        .icon-n::after {
+            content: '';
+            position: absolute;
+            background: var(--luxury-gold);
+            width: 100%; height: 100%;
+            clip-path: polygon(60% 40%, 100% 40%, 100% 60%);
+        }
+
+        .auth-subtitle {
+            font-size: 0.75rem;
+            color: var(--luxury-gold);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        /* الحقول */
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--pure-white);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--luxury-gold);
+            background: rgba(0,0,0,0.4);
+        }
+
+        /* زر الدخول */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--luxury-gold);
+            color: var(--midnight-navy);
+            border: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--pure-white);
+        }
+
+        .submit-btn:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        /* رسائل النظام */
+        .system-msg {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            min-height: 20px;
+        }
+
+        .error-msg { color: #ef4444; }
+        .success-msg { color: var(--luxury-gold); }
+
+        .system-footer {
+            margin-top: 30px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-logo">
+            <div class="icon-n"></div>
+            NEXOR&Lambda;
+        </div>
+        <div class="auth-subtitle">Secure Client Portal</div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" required autocomplete="email">
+            </div>
+            
+            <div class="input-group">
+                <label for="password">Security Key</label>
+                <input type="password" id="password" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="submit-btn" id="loginBtn">Authenticate</button>
+            <div id="systemMessage" class="system-msg"></div>
+        </form>
+
+        <div class="system-footer">ENGINEERED BY MOHAMED FAYEZ</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // === التكوين الهندسي: يجب استبدال هذه القيم ببيانات مشروعك من Firebase ===
+        const firebaseConfig = {
+  apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
+  authDomain: "nexora-a4dcc.firebaseapp.com",
+  projectId: "nexora-a4dcc",
+  storageBucket: "nexora-a4dcc.firebasestorage.app",
+  messagingSenderId: "284864772598",
+  appId: "1:284864772598:web:b1eb60c781a7c829b8afd7",
+  measurementId: "G-NTJWL0XM06"
+};
+
+        // تهيئة النظام
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // ربط عناصر واجهة المستخدم
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const systemMessage = document.getElementById('systemMessage');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // حالة التحميل
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'VERIFYING CREDENTIALS...';
+            systemMessage.className = 'system-msg';
+            systemMessage.textContent = '';
+
+            try {
+                // الاتصال بخوادم المصادقة
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // نجاح المصادقة
+                systemMessage.className = 'system-msg success-msg';
+                systemMessage.textContent = 'ACCESS GRANTED. INITIALIZING SECURE TUNNEL...';
+                
+                // توجيه العميل إلى لوحة التحكم (سيتم برمجتها في المرحلة القادمة)
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                // معالجة الأخطاء الهندسية وتأمين الرسائل
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'AUTHENTICATE';
+                systemMessage.className = 'system-msg error-msg';
+                
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    systemMessage.textContent = 'ACCESS DENIED: INVALID CREDENTIALS.';
+                } else {
+                    systemMessage.textContent = 'SYSTEM ERROR: ' + error.message;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

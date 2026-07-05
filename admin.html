@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>NEXORA | Agency Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0F172A; color: #F8FAFC; font-family: 'Outfit', sans-serif; padding: 50px; }
+        h1 { color: #C8A96A; letter-spacing: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { color: #C8A96A; letter-spacing: 2px; }
+        .status-APPROVED { color: #10B981; font-weight: bold; }
+        .status-REVISION { color: #EF4444; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>NEXORA COMMAND CENTER</h1>
+    <p>Real-time monitoring of client asset approvals.</p>
+    <table>
+        <thead><tr><th>Asset ID</th><th>Client Email</th><th>Status</th><th>Last Updated</th></tr></thead>
+        <tbody id="adminTable"></tbody>
+    </table>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
+            authDomain: "nexora-a4dcc.firebaseapp.com",
+            projectId: "nexora-a4dcc"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        onSnapshot(collection(db, "asset_status"), (snapshot) => {
+            const tbody = document.getElementById('adminTable');
+            tbody.innerHTML = '';
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'N/A';
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size:0.7rem; color:#888;">${doc.id}</td>
+                        <td>${data.updatedBy}</td>
+                        <td class="status-${data.status}">${data.status}</td>
+                        <td>${date}</td>
+                    </tr>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
