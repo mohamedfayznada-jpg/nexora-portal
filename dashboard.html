@@ -30,7 +30,7 @@
             background-size: 30px 30px;
         }
 
-        /* الهوية البصرية المطابقة للـ PDF */
+        /* الهوية البصرية (Header & CSS Logo) */
         .portal-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 25px 50px; background: rgba(15, 23, 42, 0.95);
@@ -40,10 +40,18 @@
 
         .brand-identity {
             display: flex; align-items: center; gap: 12px;
-            font-size: 1.8rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white);
+            font-size: 1.5rem; font-weight: 700; letter-spacing: 6px; color: var(--pure-white);
         }
 
-        .brand-identity img { height: 35px; width: auto; }
+        .icon-n {
+            background: var(--pure-white); width: 28px; height: 28px; position: relative;
+            clip-path: polygon(0 0, 40% 0, 100% 60%, 100% 100%, 60% 100%, 0 40%);
+        }
+        
+        .icon-n::after {
+            content: ''; position: absolute; background: var(--luxury-gold);
+            width: 100%; height: 100%; clip-path: polygon(60% 40%, 100% 40%, 100% 60%);
+        }
 
         .user-controls { display: flex; align-items: center; gap: 20px; }
         .client-email { font-size: 0.85rem; color: var(--luxury-gold); letter-spacing: 1px; }
@@ -70,7 +78,7 @@
         }
         .asset-card:hover { border-color: var(--luxury-gold); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 
-        /* شريط الحالة الهندسي */
+        /* شريط الحالة */
         .status-banner {
             position: absolute; top: 15px; right: 15px; padding: 5px 12px;
             font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
@@ -86,32 +94,59 @@
         .asset-footer { padding: 20px; background: rgba(0,0,0,0.4); }
         .asset-name { font-size: 1rem; margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* أزرار الإجراءات */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
         .btn {
             padding: 10px; font-family: inherit; font-size: 0.75rem; font-weight: 700;
             letter-spacing: 1px; cursor: pointer; transition: var(--transition); border: 1px solid transparent;
         }
         .btn-approve { background: rgba(16, 185, 129, 0.1); color: var(--approved-green); border-color: rgba(16, 185, 129, 0.3); }
         .btn-approve:hover { background: var(--approved-green); color: var(--midnight-navy); }
-        
         .btn-revise { background: rgba(239, 68, 68, 0.1); color: var(--revision-red); border-color: rgba(239, 68, 68, 0.3); }
         .btn-revise:hover { background: var(--revision-red); color: var(--pure-white); }
-        
         .btn-full { grid-column: span 2; background: var(--luxury-gold); color: var(--midnight-navy); margin-top: 10px; }
         .btn-full:hover { background: var(--pure-white); }
 
         .system-loader { text-align: center; padding: 100px; color: var(--luxury-gold); letter-spacing: 4px; font-size: 1.2rem; }
-        
-        /* تذييل المهندس */
         .footer-credit { text-align: center; padding: 20px; font-size: 0.7rem; color: rgba(255,255,255,0.2); letter-spacing: 3px; }
+
+        /* نافذة التعليقات (Feedback Modal) */
+        .feedback-modal {
+            display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95);
+            z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal-container {
+            background: var(--midnight-navy); width: 90%; max-width: 600px;
+            border: 1px solid var(--luxury-gold); display: flex; flex-direction: column; max-height: 85vh;
+        }
+        .modal-header {
+            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-title { font-size: 1.1rem; color: var(--luxury-gold); font-weight: 700; }
+        .close-modal { color: var(--pure-white); cursor: pointer; font-size: 1.5rem; }
+        .comments-list { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
+        .comment-item { background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid var(--luxury-gold); }
+        .comment-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+        .comment-text { font-size: 0.9rem; color: var(--pure-white); line-height: 1.5; }
+        .comment-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
+        .comment-input-area textarea {
+            width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--pure-white); font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 80px; margin-bottom: 10px; outline: none;
+        }
+        .comment-input-area textarea:focus { border-color: var(--luxury-gold); }
+        .submit-comment-btn {
+            background: var(--pure-white); color: var(--midnight-navy); border: none;
+            padding: 10px 20px; font-family: inherit; font-weight: 700; cursor: pointer; float: right; transition: var(--transition);
+        }
+        .submit-comment-btn:hover { background: var(--luxury-gold); }
     </style>
 </head>
 <body>
 
     <header class="portal-header">
         <div class="brand-identity">
-            <img src="./Assets/n-mark.png" alt="NEXORA">
+            <div class="icon-n"></div>
             NEXOR&Lambda;
         </div>
         <div class="user-controls">
@@ -128,12 +163,26 @@
         <div class="assets-grid" id="assetsGrid"></div>
     </main>
 
+    <div class="feedback-modal" id="feedbackModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="modalFileName">ASSET FEEDBACK</div>
+                <span class="close-modal" onclick="closeFeedbackModal()">✕</span>
+            </div>
+            <div class="comments-list" id="commentsList"></div>
+            <div class="comment-input-area">
+                <textarea id="newCommentText" placeholder="Write your feedback or revision requests here..."></textarea>
+                <button class="submit-comment-btn" onclick="submitFeedback()">POST FEEDBACK</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer-credit">SYSTEM ARCHITECTURE BY مُحَمَّد فايز</footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
@@ -154,6 +203,8 @@
         const db = getFirestore(app);
 
         let currentUserEmail = "";
+        let currentFileId = "";
+        let unsubscribeComments = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -200,7 +251,6 @@
                 const previewUrl = isVideo ? `https://drive.google.com/file/d/${file.id}/preview` : highResImage;
                 const cleanName = file.name.split('.').slice(0, -1).join('.') || file.name;
 
-                // جلب الحالة من قاعدة البيانات
                 const statusDoc = await getDoc(doc(db, "asset_status", file.id));
                 const statusData = statusDoc.exists() ? statusDoc.data().status : 'PENDING';
                 
@@ -214,7 +264,6 @@
 
                 const card = document.createElement('div');
                 card.className = 'asset-card';
-                card.id = `card-${file.id}`;
                 card.innerHTML = `
                     ${statusHtml}
                     <div class="media-viewport">${mediaMarkup}</div>
@@ -223,7 +272,7 @@
                         <div class="action-grid">
                             <button class="btn btn-approve" onclick="updateStatus('${file.id}', 'APPROVED')">APPROVE</button>
                             <button class="btn btn-revise" onclick="updateStatus('${file.id}', 'REVISION')">REVISE</button>
-                            <button class="btn btn-full" onclick="alert('Feedback system running in console.')">VIEW / ADD FEEDBACK</button>
+                            <button class="btn btn-full" onclick="openFeedbackModal('${file.id}', '${cleanName}')">VIEW / ADD FEEDBACK</button>
                         </div>
                     </div>
                 `;
@@ -238,11 +287,72 @@
                     updatedBy: currentUserEmail,
                     timestamp: new Date()
                 });
-                // إعادة تحميل الصفحة لتطبيق التغييرات البصرية
                 window.location.reload();
             } catch (error) {
-                alert("Authorization Error: Cannot update status.");
+                alert("Error updating status.");
             }
+        }
+
+        /* دوال التعليقات وقاعدة البيانات */
+        window.openFeedbackModal = function(fileId, fileName) {
+            currentFileId = fileId;
+            document.getElementById('modalFileName').textContent = fileName.toUpperCase();
+            document.getElementById('feedbackModal').style.display = 'flex';
+            
+            const commentsRef = collection(db, "asset_comments");
+            const q = query(commentsRef, where("fileId", "==", fileId), orderBy("timestamp", "asc"));
+            const commentsList = document.getElementById('commentsList');
+            commentsList.innerHTML = '<div style="color:#C8A96A; text-align:center;">LOADING FEEDBACK...</div>';
+
+            unsubscribeComments = onSnapshot(q, (snapshot) => {
+                commentsList.innerHTML = '';
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<div style="color:rgba(255,255,255,0.4); text-align:center;">No feedback yet. Be the first to comment.</div>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now';
+                    commentsList.innerHTML += `
+                        <div class="comment-item">
+                            <div class="comment-meta">
+                                <span>${data.userEmail.split('@')[0].toUpperCase()}</span>
+                                <span>${date}</span>
+                            </div>
+                            <div class="comment-text">${data.text}</div>
+                        </div>
+                    `;
+                });
+                commentsList.scrollTop = commentsList.scrollHeight;
+            }, (error) => {
+                commentsList.innerHTML = '<div style="color:#ef4444;">Error loading comments.</div>';
+            });
+        }
+
+        window.submitFeedback = async function() {
+            const textInput = document.getElementById('newCommentText');
+            const text = textInput.value.trim();
+            if (!text || !currentFileId) return;
+
+            textInput.value = '';
+            textInput.placeholder = 'Saving feedback...';
+
+            try {
+                await addDoc(collection(db, "asset_comments"), {
+                    fileId: currentFileId,
+                    userEmail: currentUserEmail,
+                    text: text,
+                    timestamp: serverTimestamp()
+                });
+                textInput.placeholder = 'Write your feedback or revision requests here...';
+            } catch (error) {
+                alert("Failed to save feedback.");
+            }
+        }
+
+        window.closeFeedbackModal = function() {
+            document.getElementById('feedbackModal').style.display = 'none';
+            if (unsubscribeComments) unsubscribeComments();
         }
     </script>
 </body>
