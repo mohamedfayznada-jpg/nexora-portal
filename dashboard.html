@@ -28,9 +28,37 @@
             background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
                               linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
             background-size: 30px 30px;
+            position: relative;
         }
 
-        /* الهوية البصرية (Header & CSS Logo) */
+        /* هندسة العلامة المائية الفاخرة */
+        .premium-watermark {
+            position: fixed;
+            top: 50%;
+            left: -5vw;
+            transform: translateY(-50%);
+            height: 120vh;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+            mix-blend-mode: color-dodge;
+            user-select: none;
+        }
+
+        .premium-watermark img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+            filter: grayscale(100%);
+        }
+
+        /* ضمان بقاء المحتوى فوق العلامة المائية */
+        .portal-header, .dashboard-main, .footer-credit, .feedback-modal {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* الهوية البصرية (Header) */
         .portal-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 25px 50px; background: rgba(15, 23, 42, 0.95);
@@ -39,22 +67,18 @@
         }
 
         .brand-identity {
-            display: flex; align-items: center; gap: 12px;
-            font-size: 1.5rem; font-weight: 700; letter-spacing: 6px; color: var(--pure-white);
+            display: flex; align-items: center; gap: 15px;
+            font-size: 1.8rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white);
         }
 
-        .icon-n {
-            background: var(--pure-white); width: 28px; height: 28px; position: relative;
-            clip-path: polygon(0 0, 40% 0, 100% 60%, 100% 100%, 60% 100%, 0 40%);
-        }
-        
-        .icon-n::after {
-            content: ''; position: absolute; background: var(--luxury-gold);
-            width: 100%; height: 100%; clip-path: polygon(60% 40%, 100% 40%, 100% 60%);
+        .brand-identity img {
+            height: 40px; 
+            width: auto;
+            display: block;
         }
 
         .user-controls { display: flex; align-items: center; gap: 20px; }
-        .client-email { font-size: 0.85rem; color: var(--luxury-gold); letter-spacing: 1px; }
+        .client-email { font-size: 0.85rem; color: var(--luxury-gold); letter-spacing: 1px; text-transform: uppercase; }
 
         .logout-btn {
             background: transparent; color: var(--pure-white);
@@ -67,7 +91,7 @@
         .dashboard-main { padding: 50px; flex-grow: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
         .section-title { font-size: 2rem; font-weight: 300; margin-bottom: 5px; }
         .section-title span { font-weight: 700; color: var(--luxury-gold); }
-        .section-desc { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-bottom: 40px; letter-spacing: 1px; }
+        .section-desc { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-bottom: 40px; letter-spacing: 1px; text-transform: uppercase; }
 
         .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
 
@@ -98,7 +122,7 @@
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn {
             padding: 10px; font-family: inherit; font-size: 0.75rem; font-weight: 700;
-            letter-spacing: 1px; cursor: pointer; transition: var(--transition); border: 1px solid transparent;
+            letter-spacing: 1px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; text-transform: uppercase;
         }
         .btn-approve { background: rgba(16, 185, 129, 0.1); color: var(--approved-green); border-color: rgba(16, 185, 129, 0.3); }
         .btn-approve:hover { background: var(--approved-green); color: var(--midnight-navy); }
@@ -110,7 +134,7 @@
         .system-loader { text-align: center; padding: 100px; color: var(--luxury-gold); letter-spacing: 4px; font-size: 1.2rem; }
         .footer-credit { text-align: center; padding: 20px; font-size: 0.7rem; color: rgba(255,255,255,0.2); letter-spacing: 3px; }
 
-        /* نافذة التعليقات (Feedback Modal) */
+        /* نافذة التعليقات */
         .feedback-modal {
             display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95);
             z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);
@@ -123,12 +147,15 @@
             padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex; justify-content: space-between; align-items: center;
         }
-        .modal-title { font-size: 1.1rem; color: var(--luxury-gold); font-weight: 700; }
-        .close-modal { color: var(--pure-white); cursor: pointer; font-size: 1.5rem; }
+        .modal-title { font-size: 1.1rem; color: var(--luxury-gold); font-weight: 700; letter-spacing: 2px;}
+        .close-modal { color: var(--pure-white); cursor: pointer; font-size: 1.5rem; transition: var(--transition);}
+        .close-modal:hover { color: var(--revision-red); }
+        
         .comments-list { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
         .comment-item { background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid var(--luxury-gold); }
         .comment-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
         .comment-text { font-size: 0.9rem; color: var(--pure-white); line-height: 1.5; }
+        
         .comment-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
         .comment-input-area textarea {
             width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -144,8 +171,16 @@
 </head>
 <body>
 
-  <div class="brand-identity">
-            <img src="./Assets/nexora-primary-logo.png" alt="NEXORA Logo" style="height: 40px; width: auto;">
+    <!-- العلامة المائية الفاخرة -->
+    <div class="premium-watermark">
+        <img src="./Assets/n-mark.png" alt="NEXORA Watermark">
+    </div>
+
+    <header class="portal-header">
+        <div class="brand-identity">
+            <!-- الشعار والصورة المدمجة -->
+            <img src="./Assets/n-mark.png" alt="NEXORA Icon">
+            NEXOR&Lambda;
         </div>
         <div class="user-controls">
             <span class="client-email" id="userEmail">AUTHENTICATING...</span>
@@ -161,6 +196,7 @@
         <div class="assets-grid" id="assetsGrid"></div>
     </main>
 
+    <!-- نافذة التعليقات -->
     <div class="feedback-modal" id="feedbackModal">
         <div class="modal-container">
             <div class="modal-header">
@@ -180,7 +216,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
@@ -207,7 +243,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserEmail = user.email.toLowerCase();
-                document.getElementById('userEmail').textContent = currentUserEmail.toUpperCase();
+                document.getElementById('userEmail').textContent = currentUserEmail;
                 initializeDashboard(currentUserEmail);
             } else {
                 window.location.href = 'login.html';
@@ -291,14 +327,13 @@
             }
         }
 
-        /* دوال التعليقات وقاعدة البيانات */
-       window.openFeedbackModal = function(fileId, fileName) {
+        /* دوال التعليقات والترتيب المحلي لتخطي مشكلة الفهارس */
+        window.openFeedbackModal = function(fileId, fileName) {
             currentFileId = fileId;
             document.getElementById('modalFileName').textContent = fileName.toUpperCase();
             document.getElementById('feedbackModal').style.display = 'flex';
             
             const commentsRef = collection(db, "asset_comments");
-            // تم إزالة orderBy من هنا لتخطي مشكلة الـ Index
             const q = query(commentsRef, where("fileId", "==", fileId)); 
             const commentsList = document.getElementById('commentsList');
             commentsList.innerHTML = '<div style="color:#C8A96A; text-align:center;">LOADING FEEDBACK...</div>';
@@ -310,7 +345,6 @@
                     return;
                 }
 
-                // الترتيب الزمني المحلي (Local Sorting)
                 const comments = [];
                 snapshot.forEach((doc) => comments.push(doc.data()));
                 comments.sort((a, b) => {
