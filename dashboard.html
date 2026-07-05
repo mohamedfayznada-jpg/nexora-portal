@@ -294,13 +294,14 @@
         }
 
         /* دوال التعليقات وقاعدة البيانات */
-        window.openFeedbackModal = function(fileId, fileName) {
+       window.openFeedbackModal = function(fileId, fileName) {
             currentFileId = fileId;
             document.getElementById('modalFileName').textContent = fileName.toUpperCase();
             document.getElementById('feedbackModal').style.display = 'flex';
             
             const commentsRef = collection(db, "asset_comments");
-            const q = query(commentsRef, where("fileId", "==", fileId), orderBy("timestamp", "asc"));
+            // تم إزالة orderBy من هنا لتخطي مشكلة الـ Index
+            const q = query(commentsRef, where("fileId", "==", fileId)); 
             const commentsList = document.getElementById('commentsList');
             commentsList.innerHTML = '<div style="color:#C8A96A; text-align:center;">LOADING FEEDBACK...</div>';
 
@@ -310,8 +311,17 @@
                     commentsList.innerHTML = '<div style="color:rgba(255,255,255,0.4); text-align:center;">No feedback yet. Be the first to comment.</div>';
                     return;
                 }
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
+
+                // الترتيب الزمني المحلي (Local Sorting)
+                const comments = [];
+                snapshot.forEach((doc) => comments.push(doc.data()));
+                comments.sort((a, b) => {
+                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+                    return timeA - timeB;
+                });
+
+                comments.forEach((data) => {
                     const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now';
                     commentsList.innerHTML += `
                         <div class="comment-item">
@@ -325,7 +335,7 @@
                 });
                 commentsList.scrollTop = commentsList.scrollHeight;
             }, (error) => {
-                commentsList.innerHTML = '<div style="color:#ef4444;">Error loading comments.</div>';
+                commentsList.innerHTML = '<div style="color:#ef4444;">Error loading comments: ' + error.message + '</div>';
             });
         }
 
