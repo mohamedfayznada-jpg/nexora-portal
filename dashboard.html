@@ -156,6 +156,10 @@
     overscroll-behavior-y: contain; /* لمنع الارتداد عند السحب */
     -webkit-tap-highlight-color: transparent;
 }
+        .asset-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+}
     </style>
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -879,6 +883,12 @@ const downloadBtn = `<a href="${downloadUrl}" class="btn btn-full" style="margin
                 alert("ERROR DURING DELETION SEQUENCE: " + e.message);
             }
         }
+        window.sendNotificationToClient = async function(clientEmail, message) {
+    // هذه الدالة تتطلب إعداد Firebase Cloud Functions
+    // هي ترسل إشعاراً فورياً لهاتف العميل
+    console.log(`SENDING NOTIFICATION TO ${clientEmail}: ${message}`);
+    // سيتم تنفيذ الربط عبر Cloud Messaging API لاحقاً
+}
     </script>
 </body>
 </html>
