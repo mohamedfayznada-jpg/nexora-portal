@@ -109,6 +109,7 @@
         .back-btn:hover { color: var(--luxury-gold); }
         .system-loader { text-align: center; padding: 60px; color: rgba(255,255,255,0.3); letter-spacing: 4px; font-size: 0.9rem; text-transform: uppercase; }
     </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -185,6 +186,17 @@
                 <div class="section-title" id="projectNameTitle">Project <span>Details</span></div>
                 <div class="section-desc">SECURE ENVIRONMENT</div>
             </div>
+            <div id="adminUploadEngine" style="display:none; background: rgba(15,23,42,0.6); padding: 30px; border: 1px solid var(--luxury-gold); margin-bottom: 40px; border-radius: 4px; backdrop-filter: blur(10px);">
+    <div style="color: var(--luxury-gold); font-size: 1.2rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 20px;">SYSTEM UPLOAD ENGINE</div>
+    
+    <button class="btn btn-full" id="authDriveBtn" onclick="authorizeDrive()" style="margin-bottom: 20px;">1. AUTHORIZE SECURE CONNECTION</button>
+    
+    <div id="uploadControls" style="display: none;">
+        <input type="file" id="filePicker" multiple style="display: block; width: 100%; padding: 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: var(--pure-white); margin-bottom: 20px; font-family: inherit;">
+        <button class="btn btn-full" onclick="executeUpload()">2. INITIATE UPLOAD TO PROJECT DIRECTORY</button>
+    </div>
+    <div id="uploadStatus" style="margin-top: 15px; font-size: 0.85rem; font-weight: 700; letter-spacing: 2px;"></div>
+</div>
             <div id="projectFilesLoader" class="system-loader">LOADING PROJECT ASSETS...</div>
             <div class="assets-grid" id="projectFilesGrid"></div>
         </div>
@@ -208,23 +220,42 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
+let currentOpenFolderId = "";
+let currentOpenFolderName = "";
+let driveAccessToken = null;
+let tokenClient;
+const GOOGLE_CLIENT_ID = "221924403487-4nv5pli4b3ang4a077j7sl990dk8rbiq.apps.googleusercontent.com"; // ضع الـ Client ID هنا
         let currentUserEmail = "";
 
-        onAuthStateChanged(auth, (user) => {
+       onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserEmail = user.email.toLowerCase();
                 document.getElementById('userEmail').textContent = currentUserEmail;
                 
-                // تصفية أمنية صارمة: الأدمن فقط يرى لوحة الإدارة، والعميل يُوجّه مباشرة للمجلدات
                 if (currentUserEmail === 'mfayez@nexora.com') {
                     document.getElementById('adminView').classList.add('active');
                     document.getElementById('mainDashboardView').classList.add('active');
+                    document.getElementById('adminUploadEngine').style.display = 'block';
                     initializeAdminCenter();
                     loadGlobalShowcase();
+                    
+                    // تهيئة محرك المصادقة للرفع
+                    tokenClient = google.accounts.oauth2.initTokenClient({
+                        client_id: GOOGLE_CLIENT_ID,
+                        scope: 'https://www.googleapis.com/auth/drive.file',
+                        callback: (tokenResponse) => {
+                            driveAccessToken = tokenResponse.access_token;
+                            document.getElementById('authDriveBtn').style.display = 'none';
+                            document.getElementById('uploadControls').style.display = 'block';
+                            const status = document.getElementById('uploadStatus');
+                            status.textContent = 'CONNECTION ESTABLISHED. READY.';
+                            status.style.color = 'var(--approved-green)';
+                        },
+                    });
                 } else {
                     document.getElementById('adminView').classList.remove('active');
                     document.getElementById('mainDashboardView').classList.add('active');
+                    document.getElementById('adminUploadEngine').style.display = 'none';
                     initializeClientPortal(currentUserEmail);
                     loadGlobalShowcase();
                 }
@@ -339,7 +370,10 @@
             });
         }
 
-        window.openProjectSpace = async function(folderId, folderName) {
+       window.openProjectSpace = async function(folderId, folderName) {
+            currentOpenFolderId = folderId;
+            currentOpenFolderName = folderName;
+            
             document.getElementById('mainDashboardView').classList.remove('active');
             document.getElementById('adminView').classList.remove('active');
             document.getElementById('projectView').classList.add('active');
@@ -465,6 +499,49 @@
                 document.getElementById('adminView').classList.add('active');
             }
             document.getElementById('mainDashboardView').classList.add('active');
+        }
+        window.authorizeDrive = function() {
+            if(tokenClient) tokenClient.requestAccessToken();
+        }
+
+        window.executeUpload = async function() {
+            const files = document.getElementById('filePicker').files;
+            const statusBox = document.getElementById('uploadStatus');
+            
+            if(files.length === 0) {
+                statusBox.textContent = 'SYSTEM ERROR: NO FILES SELECTED.';
+                statusBox.style.color = 'var(--revision-red)';
+                return;
+            }
+            
+            statusBox.textContent = 'TRANSMITTING DATA TO SECURE CLOUD...';
+            statusBox.style.color = 'var(--luxury-gold)';
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const metadata = { name: file.name, parents: [currentOpenFolderId] };
+                const form = new FormData();
+                form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                form.append('file', file);
+
+                try {
+                    await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + driveAccessToken },
+                        body: form
+                    });
+                } catch (error) {
+                    statusBox.textContent = `TRANSMISSION FAILED FOR: ${file.name}`;
+                    statusBox.style.color = 'var(--revision-red)';
+                    return;
+                }
+            }
+            
+            statusBox.textContent = 'DATA TRANSMISSION COMPLETE.';
+            statusBox.style.color = 'var(--approved-green)';
+            document.getElementById('filePicker').value = '';
+            
+            openProjectSpace(currentOpenFolderId, currentOpenFolderName);
         }
     </script>
 </body>
