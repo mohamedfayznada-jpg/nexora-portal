@@ -96,6 +96,60 @@
         footer { background: var(--midnight-navy); padding: 60px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
         .footer-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white); margin-bottom: 20px; }
         .footer-credit { font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 4px; text-transform: uppercase; }
+   /* ========================================= */
+        /* MOBILE OPTIMIZATION FOR INDEX.HTML        */
+        /* ========================================= */
+        @media (max-width: 768px) {
+            /* إصلاح شريط التنقل */
+            .navbar {
+                flex-direction: column;
+                padding: 15px;
+                gap: 20px;
+                text-align: center;
+            }
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            .client-portal-btn {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+                margin-top: 10px;
+            }
+
+            /* إصلاح الهوامش للقطاعات */
+            section {
+                padding: 120px 20px 60px 20px;
+            }
+
+            /* تصغير الخطوط الضخمة في الواجهة */
+            .hero h1 {
+                font-size: 2.5rem;
+                margin-bottom: 15px;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+
+            /* تحويل شبكة الكروت إلى عمود واحد */
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .feature-card {
+                padding: 30px 20px;
+            }
+
+            /* تذييل الصفحة */
+            footer {
+                padding: 30px 20px;
+            }
+            .footer-logo {
+                font-size: 1.2rem;
+            }
+        }
     </style>
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
