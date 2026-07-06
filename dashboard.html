@@ -160,6 +160,23 @@
     transform: scale(0.98);
     transition: transform 0.1s;
 }
+ /* فرض المرونة على كل العناصر */
+* {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+body {
+    overflow-x: hidden; /* يمنع ظهور السكرول الجانبي المزعج */
+    width: 100vw;       /* العرض يساوي عرض نافذة المتصفح */
+}
+
+/* حل مشكلة الجداول على الموبايل */
+.mapping-table {
+    display: block;
+    overflow-x: auto;   /* يجعل الجدول قابلاً للسحب يميناً ويساراً بدلاً من كسر التصميم */
+    white-space: nowrap;
+}
     </style>
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
