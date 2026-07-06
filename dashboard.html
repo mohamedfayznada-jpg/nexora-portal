@@ -134,16 +134,27 @@
 
     <main class="dashboard-main">
         
-        <div id="adminView" class="view-section">
+      <div id="adminView" class="view-section">
             <div class="section-header">
                 <div class="section-title">Master <span>Control Center</span></div>
-                <div class="section-desc">Manage Client Workspaces & Drive Routing</div>
+                <div class="section-desc">Enterprise Operations & Client Management</div>
             </div>
             
-            <div class="admin-panel">
-                <div style="color: var(--luxury-gold); font-size: 1rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 15px;">ADD NEW CLIENT MAPPING</div>
+            <div class="admin-panel" style="border-color: var(--pure-white);">
+                <div style="color: var(--pure-white); font-size: 1rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 15px;">1. CLIENT PROVISIONING ENGINE</div>
                 <div class="admin-input-group">
-                    <input type="email" id="mapEmail" class="admin-input" placeholder="New Client Email Address">
+                    <input type="email" id="newClientEmail" class="admin-input" placeholder="Client Email">
+                    <input type="password" id="newClientPassword" class="admin-input" placeholder="Client Password">
+                    <input type="text" id="newClientProjectName" class="admin-input" placeholder="Project / Folder Name">
+                    <button class="admin-btn" onclick="provisionNewClient()">PROVISION CLIENT & DIRECTORY</button>
+                </div>
+                <div id="provisionMessage" style="font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 20px;"></div>
+            </div>
+
+            <div class="admin-panel">
+                <div style="color: var(--luxury-gold); font-size: 1rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 15px;">2. MANUAL DIRECTORY MAPPING</div>
+                <div class="admin-input-group">
+                    <input type="email" id="mapEmail" class="admin-input" placeholder="Existing Client Email">
                     <input type="text" id="mapFolder" class="admin-input" placeholder="Google Drive Parent Folder ID">
                     <button class="admin-btn" onclick="saveClientMapping()">MAP DIRECTORY</button>
                 </div>
@@ -157,11 +168,10 @@
 
             <div class="section-header">
                 <div class="section-title">Manage <span>Client Projects & Showcase</span></div>
-                <div class="section-desc">Select an active client to load their specific workspace directory</div>
             </div>
             <div class="admin-panel">
                 <div class="admin-input-group">
-                    <select id="adminClientSelect" class="admin-select" onchange="adminSelectClientChanged()">
+                    <select id="adminClientSelect" class="admin-select">
                         <option value="">LOADING CLIENTS...</option>
                     </select>
                     <button class="admin-btn" onclick="adminLoadSelectedClientFolder()">LOAD WORKSPACE</button>
@@ -226,7 +236,13 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
+// تهيئة تطبيق ثانوي لإنشاء المستخدمين دون طرد الأدمن
+        const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+        import { getAuth as getSecondaryAuth, createUserWithEmailAndPassword, signOut as secondarySignOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        const secondaryAuth = getSecondaryAuth(secondaryApp);
+        
+        // ضع هنا Folder ID الخاص بمجلد NEXORA الرئيسي على جوجل درايف الذي سيتم إنشاء مجلدات العملاء داخله
+        const NEXORA_ROOT_DRIVE_FOLDER = "1YHzVEzbTpBjaONRd10I5-6Rtmv70MIbY";
         let currentUserEmail = "";
         let currentOpenFolderId = "";
         let currentOpenFolderName = "";
@@ -566,6 +582,71 @@
                 document.getElementById('adminView').classList.add('active');
             }
             document.getElementById('mainDashboardView').classList.add('active');
+        }
+        window.provisionNewClient = async function() {
+            const email = document.getElementById('newClientEmail').value.toLowerCase().trim();
+            const password = document.getElementById('newClientPassword').value;
+            const projectName = document.getElementById('newClientProjectName').value.trim();
+            const msgBox = document.getElementById('provisionMessage');
+
+            if (!email || !password || !projectName) {
+                msgBox.style.color = "#EF4444";
+                msgBox.textContent = "SYSTEM ERROR: ALL FIELDS REQUIRED.";
+                return;
+            }
+
+            if (!driveAccessToken) {
+                msgBox.style.color = "#EF4444";
+                msgBox.textContent = "SYSTEM ERROR: DRIVE NOT AUTHORIZED. PLEASE AUTHORIZE DRIVE UPLOAD MODULE FIRST.";
+                return;
+            }
+
+            msgBox.style.color = "var(--luxury-gold)";
+            msgBox.textContent = "PROVISIONING IN PROGRESS...";
+
+            try {
+                // 1. إنشاء الفولدر على جوجل درايف
+                const folderMetadata = {
+                    name: projectName,
+                    mimeType: 'application/vnd.google-apps.folder',
+                    parents: [NEXORA_ROOT_DRIVE_FOLDER]
+                };
+
+                const driveResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + driveAccessToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(folderMetadata)
+                });
+
+                if (!driveResponse.ok) throw new Error("Drive Folder Creation Failed");
+                const driveData = await driveResponse.json();
+                const newFolderId = driveData.id;
+
+                // 2. إنشاء المستخدم على Firebase باستخدام الـ Secondary App
+                await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                await secondarySignOut(secondaryAuth);
+
+                // 3. ربط الإيميل بالفولدر في Firestore
+                await setDoc(doc(db, "client_mappings", email), { 
+                    folderId: newFolderId, 
+                    updatedBy: currentUserEmail, 
+                    timestamp: new Date() 
+                });
+
+                msgBox.style.color = "#10B981";
+                msgBox.textContent = "CLIENT PROVISIONED AND DIRECTORY SECURED.";
+                
+                document.getElementById('newClientEmail').value = '';
+                document.getElementById('newClientPassword').value = '';
+                document.getElementById('newClientProjectName').value = '';
+
+            } catch (error) {
+                msgBox.style.color = "#EF4444";
+                msgBox.textContent = `PROVISIONING FAILED: ${error.message}`;
+            }
         }
     </script>
 </body>
