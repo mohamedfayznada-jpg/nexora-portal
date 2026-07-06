@@ -178,6 +178,16 @@ body {
     overflow-x: auto;   /* يجعل الجدول قابلاً للسحب يميناً ويساراً بدلاً من كسر التصميم */
     white-space: nowrap;
 }
+        /* عدل هذه الأسطر في قسم الـ CSS */
+body {
+    width: 100%; /* بدلاً من 100vw */
+    overflow-x: hidden;
+}
+
+.dashboard-main {
+    padding: 10px; /* تقليل البادينج على الموبايل */
+    width: 100%;
+}
     </style>
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -573,12 +583,13 @@ const downloadBtn = `<a href="${downloadUrl}" class="btn btn-full" style="margin
                     `;
                 }
 
-                card.innerHTML = `
+               card.innerHTML = `
                     <div class="media-viewport">${mediaMarkup}</div>
                     <div class="asset-footer">
                         <div class="asset-name">${cleanName}</div>
                         <div class="action-grid">
                             <button class="btn btn-full" onclick="openFeedbackModal('${file.id}', '${cleanName}')">VIEW FEEDBACK</button>
+                            <a href="https://docs.google.com/uc?export=download&id=${file.id}" target="_blank" class="btn btn-full" style="text-decoration:none; display:block; text-align:center;">DOWNLOAD</a>
                         </div>
                         ${adminControlsHtml}
                     </div>
