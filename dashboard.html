@@ -110,6 +110,21 @@
         .back-btn:hover { color: var(--luxury-gold); }
         .system-loader { text-align: center; padding: 60px; color: rgba(255,255,255,0.3); letter-spacing: 4px; font-size: 0.9rem; text-transform: uppercase; }
         .footer-credit { text-align: center; padding: 20px; font-size: 0.65rem; color: rgba(255,255,255,0.15); letter-spacing: 4px; }
+
+        /* Feedback Modal Styles */
+        .feedback-modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-container { background: var(--midnight-navy); width: 90%; max-width: 600px; border: 1px solid var(--luxury-gold); display: flex; flex-direction: column; max-height: 85vh; }
+        .modal-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1.1rem; color: var(--luxury-gold); font-weight: 700; letter-spacing: 2px;}
+        .close-modal { color: var(--pure-white); cursor: pointer; font-size: 1.5rem; transition: var(--transition);}
+        .close-modal:hover { color: var(--revision-red); }
+        .comments-list { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
+        .comment-item { background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid var(--luxury-gold); }
+        .comment-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+        .comment-text { font-size: 0.9rem; color: var(--pure-white); line-height: 1.5; }
+        .comment-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
+        .comment-input-area textarea { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--pure-white); font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 80px; margin-bottom: 10px; outline: none; }
+        .comment-input-area textarea:focus { border-color: var(--luxury-gold); }
     </style>
 </head>
 <body>
@@ -133,12 +148,14 @@
 
     <main class="dashboard-main">
         
-      <div id="adminView" class="view-section">
+        <div id="adminView" class="view-section">
             <div class="section-header">
                 <div class="section-title">Master <span>Control Center</span></div>
                 <div class="section-desc">Enterprise Operations & Client Management</div>
             </div>
             
+            <button class="admin-btn" id="globalAuthBtn" onclick="authorizeDrive()" style="margin-bottom: 30px; width: 100%; border: 1px solid var(--luxury-gold);">AUTHORIZE SYSTEM EXECUTIONS (CLICK FIRST)</button>
+
             <div class="admin-panel" style="border-color: var(--pure-white);">
                 <div style="color: var(--pure-white); font-size: 1rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 15px;">1. CLIENT PROVISIONING ENGINE</div>
                 <div class="admin-input-group">
@@ -199,10 +216,9 @@
             
             <div id="adminUploadEngine" style="display:none; background: rgba(15,23,42,0.6); padding: 30px; border: 1px solid var(--luxury-gold); margin-bottom: 40px; border-radius: 4px; backdrop-filter: blur(10px);">
                 <div style="color: var(--luxury-gold); font-size: 1.1rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 20px;">PROJECT UPLOAD MODULE</div>
-                <button class="btn btn-full" id="authDriveBtn" onclick="authorizeDrive()" style="margin-bottom: 20px;">1. AUTHORIZE SECURE CONNECTION</button>
-                <div id="uploadControls" style="display: none;">
+                <div id="uploadControls">
                     <input type="file" id="filePicker" multiple class="admin-input" style="width:100%; margin-bottom:20px;">
-                    <button class="btn btn-full" onclick="executeUpload()">2. INITIATE UPLOAD TO CURRENT PROJECT</button>
+                    <button class="btn btn-full" onclick="executeUpload()">INITIATE UPLOAD TO CURRENT PROJECT</button>
                 </div>
                 <div id="uploadStatus" style="margin-top: 15px; font-size: 0.85rem; font-weight: 700; letter-spacing: 2px;"></div>
             </div>
@@ -217,12 +233,27 @@
 
     </main>
 
+    <!-- Feedback Modal -->
+    <div class="feedback-modal" id="feedbackModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title" id="modalFileName">ASSET FEEDBACK</div>
+                <span class="close-modal" onclick="closeFeedbackModal()">✕</span>
+            </div>
+            <div class="comments-list" id="commentsList"></div>
+            <div class="comment-input-area">
+                <textarea id="newCommentText" placeholder="Write your feedback..."></textarea>
+                <button class="btn btn-full" onclick="submitFeedback()" style="float: right;">POST FEEDBACK</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer-credit">SYSTEM ARCHITECTURE BY MOHAMED FAYEZ</footer>
 
-  <script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, getAuth as getSecondaryAuth, createUserWithEmailAndPassword, signOut as secondarySignOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc, addDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
@@ -235,7 +266,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
         const secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
         const secondaryAuth = getSecondaryAuth(secondaryApp);
         
@@ -246,6 +276,8 @@
         let driveAccessToken = null;
         let tokenClient;
         let cachedClientMappings = {};
+        let currentFileId = "";
+        let unsubscribeComments = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -282,14 +314,20 @@
                     scope: 'https://www.googleapis.com/auth/drive.file',
                     callback: (tokenResponse) => {
                         driveAccessToken = tokenResponse.access_token;
-                        document.getElementById('authDriveBtn').style.display = 'none';
-                        document.getElementById('uploadControls').style.display = 'block';
-                        const status = document.getElementById('uploadStatus');
-                        status.textContent = 'CONNECTION ESTABLISHED. READY.';
-                        status.style.color = 'var(--approved-green)';
+                        const authBtn = document.getElementById('globalAuthBtn');
+                        if(authBtn) {
+                            authBtn.textContent = 'SYSTEM AUTHORIZED';
+                            authBtn.style.background = 'var(--approved-green)';
+                            authBtn.style.color = 'var(--midnight-darker)';
+                            authBtn.style.borderColor = 'var(--approved-green)';
+                        }
                     },
                 });
             }
+        }
+
+        window.authorizeDrive = function() {
+            if(tokenClient) tokenClient.requestAccessToken();
         }
 
         function initializeAdminCenter() {
@@ -312,7 +350,6 @@
                             <td style="color:rgba(255,255,255,0.5);">${folderId}</td>
                         </tr>
                     `;
-
                     select.innerHTML += `<option value="${email}">${email.toUpperCase()}</option>`;
                 });
             });
@@ -341,8 +378,6 @@
                 msgBox.textContent = "AUTHORIZATION FAILED.";
             }
         }
-
-        window.adminSelectClientChanged = function() {}
 
         window.adminLoadSelectedClientFolder = function() {
             const selectedEmail = document.getElementById('adminClientSelect').value;
@@ -375,8 +410,8 @@
         }
 
         async function fetchClientProjects(parentFolderId) {
-            const query = encodeURIComponent(`'${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
-            const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&key=${GOOGLE_API_KEY}`;
+            const queryParam = encodeURIComponent(`'${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
+            const url = `https://www.googleapis.com/drive/v3/files?q=${queryParam}&fields=files(id,name)&key=${GOOGLE_API_KEY}`;
             const loader = document.getElementById('foldersLoader');
             if(loader) loader.style.display = 'block';
 
@@ -421,8 +456,8 @@
             document.getElementById('projectView').classList.add('active');
             document.getElementById('projectNameTitle').innerHTML = `${folderName} <span>Assets</span>`;
             
-            const query = encodeURIComponent(`'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`);
-            const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType,thumbnailLink)&key=${GOOGLE_API_KEY}`;
+            const queryParam = encodeURIComponent(`'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`);
+            const url = `https://www.googleapis.com/drive/v3/files?q=${queryParam}&fields=files(id,name,mimeType,thumbnailLink)&key=${GOOGLE_API_KEY}`;
             
             document.getElementById('projectFilesLoader').style.display = 'block';
             document.getElementById('projectFilesGrid').innerHTML = '';
@@ -459,17 +494,16 @@
                 
                 let adminControlsHtml = '';
                 if(currentUserEmail === 'mfayez@nexora.com') {
-                    adminControlsHtml = `
-                        <div class="action-grid" style="margin-top:15px;">
-                            <button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')">TOGGLE SHOWCASE</button>
-                        </div>
-                    `;
+                    adminControlsHtml = `<button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')" style="width:100%; margin-top:10px;">TOGGLE SHOWCASE</button>`;
                 }
 
                 card.innerHTML = `
                     <div class="media-viewport">${mediaMarkup}</div>
                     <div class="asset-footer">
                         <div class="asset-name">${cleanName}</div>
+                        <div class="action-grid">
+                            <button class="btn btn-full" onclick="openFeedbackModal('${file.id}', '${cleanName}')">VIEW FEEDBACK</button>
+                        </div>
                         ${adminControlsHtml}
                     </div>
                 `;
@@ -477,11 +511,12 @@
             });
         }
 
-        window.authorizeDrive = function() {
-            if(tokenClient) tokenClient.requestAccessToken();
-        }
-
         window.executeUpload = async function() {
+            if (!driveAccessToken) {
+                alert("SYSTEM ERROR: PLEASE AUTHORIZE CLOUD CONNECTION FIRST.");
+                return;
+            }
+
             const files = document.getElementById('filePicker').files;
             const statusBox = document.getElementById('uploadStatus');
             
@@ -517,7 +552,6 @@
             statusBox.textContent = 'DATA TRANSMISSION COMPLETE.';
             statusBox.style.color = 'var(--approved-green)';
             document.getElementById('filePicker').value = '';
-            
             openProjectSpace(currentOpenFolderId, currentOpenFolderName);
         }
 
@@ -593,7 +627,7 @@
 
             if (!driveAccessToken) {
                 msgBox.style.color = "#EF4444";
-                msgBox.textContent = "SYSTEM ERROR: DRIVE NOT AUTHORIZED. PLEASE AUTHORIZE DRIVE UPLOAD MODULE FIRST.";
+                msgBox.textContent = "SYSTEM ERROR: DRIVE NOT AUTHORIZED. PLEASE AUTHORIZE SYSTEM EXECUTIONS FIRST.";
                 return;
             }
 
@@ -640,6 +674,75 @@
                 msgBox.style.color = "#EF4444";
                 msgBox.textContent = `PROVISIONING FAILED: ${error.message}`;
             }
+        }
+
+        window.openFeedbackModal = function(fileId, fileName) {
+            currentFileId = fileId;
+            document.getElementById('modalFileName').textContent = fileName.toUpperCase();
+            document.getElementById('feedbackModal').style.display = 'flex';
+            
+            const commentsRef = collection(db, "asset_comments");
+            const q = query(commentsRef, where("fileId", "==", fileId)); 
+            const commentsList = document.getElementById('commentsList');
+            commentsList.innerHTML = '<div style="color:#C8A96A; text-align:center;">LOADING FEEDBACK...</div>';
+
+            unsubscribeComments = onSnapshot(q, (snapshot) => {
+                commentsList.innerHTML = '';
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<div style="color:rgba(255,255,255,0.4); text-align:center;">No feedback yet.</div>';
+                    return;
+                }
+
+                const comments = [];
+                snapshot.forEach((doc) => comments.push(doc.data()));
+                comments.sort((a, b) => {
+                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+                    return timeA - timeB;
+                });
+
+                comments.forEach((data) => {
+                    const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now';
+                    commentsList.innerHTML += `
+                        <div class="comment-item">
+                            <div class="comment-meta">
+                                <span>${data.userEmail.split('@')[0].toUpperCase()}</span>
+                                <span>${date}</span>
+                            </div>
+                            <div class="comment-text">${data.text}</div>
+                        </div>
+                    `;
+                });
+                commentsList.scrollTop = commentsList.scrollHeight;
+            }, (error) => {
+                commentsList.innerHTML = '<div style="color:#ef4444;">Error loading comments: ' + error.message + '</div>';
+            });
+        }
+
+        window.submitFeedback = async function() {
+            const textInput = document.getElementById('newCommentText');
+            const text = textInput.value.trim();
+            if (!text || !currentFileId) return;
+
+            textInput.value = '';
+            textInput.placeholder = 'Saving feedback...';
+
+            try {
+                await addDoc(collection(db, "asset_comments"), {
+                    fileId: currentFileId,
+                    userEmail: currentUserEmail,
+                    text: text,
+                    timestamp: serverTimestamp()
+                });
+                textInput.placeholder = 'Write your feedback...';
+            } catch (error) {
+                alert("Failed to save feedback.");
+            }
+        }
+
+        window.closeFeedbackModal = function() {
+            document.getElementById('feedbackModal').style.display = 'none';
+            if (unsubscribeComments) unsubscribeComments();
         }
     </script>
 </body>
