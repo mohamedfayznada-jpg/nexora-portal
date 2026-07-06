@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXORA | Secure Client Portal</title>
+    <title>NEXORA | Premium Client Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --midnight-navy: #0F172A;
+            --midnight-darker: #080C16;
             --luxury-gold: #C8A96A;
             --pure-white: #F8FAFC;
-            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-bg: rgba(30, 41, 59, 0.4);
             --approved-green: #10B981;
             --revision-red: #EF4444;
             --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -19,214 +20,179 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--midnight-navy);
+            background-color: var(--midnight-darker);
             color: var(--pure-white);
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 30px 30px;
-            position: relative;
+            background-image: linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow-x: hidden;
         }
 
-        /* هندسة العلامة المائية الفاخرة */
-        .premium-watermark {
-            position: fixed;
-            top: 50%;
-            left: -5vw;
-            transform: translateY(-50%);
-            height: 120vh;
-            opacity: 0.04;
-            pointer-events: none;
-            z-index: 0;
-            mix-blend-mode: color-dodge;
-            user-select: none;
-        }
-
-        .premium-watermark img {
-            height: 100%;
-            width: auto;
-            object-fit: contain;
-            filter: grayscale(100%);
-        }
-
-        /* ضمان بقاء المحتوى فوق العلامة المائية */
-        .portal-header, .dashboard-main, .footer-credit, .feedback-modal {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* الهوية البصرية (Header) */
+        /* الهندسة البصرية المتقدمة للشريط العلوي */
         .portal-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 25px 50px; background: rgba(15, 23, 42, 0.95);
-            border-bottom: 1px solid rgba(200, 169, 106, 0.3);
+            padding: 20px 50px; background: rgba(8, 12, 22, 0.95);
+            border-bottom: 1px solid rgba(200, 169, 106, 0.15);
             position: sticky; top: 0; z-index: 100;
+            backdrop-filter: blur(15px);
         }
 
         .brand-identity {
             display: flex; align-items: center; gap: 15px;
-            font-size: 1.8rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white);
+            font-size: 1.6rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white);
         }
 
-        .brand-identity img {
-            height: 40px; 
-            width: auto;
-            display: block;
-        }
+        /* SVG Logo Engine - يحمي الشعار من الانكسار نهائياً */
+        .svg-logo { width: 35px; height: 35px; }
 
-        .user-controls { display: flex; align-items: center; gap: 20px; }
-        .client-email { font-size: 0.85rem; color: var(--luxury-gold); letter-spacing: 1px; text-transform: uppercase; }
+        .user-controls { display: flex; align-items: center; gap: 25px; }
+        .client-email { font-size: 0.8rem; color: rgba(255,255,255,0.5); letter-spacing: 2px; text-transform: uppercase; }
 
         .logout-btn {
-            background: transparent; color: var(--pure-white);
-            border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px;
-            font-family: inherit; font-size: 0.8rem; letter-spacing: 2px;
+            background: transparent; color: var(--luxury-gold);
+            border: 1px solid var(--luxury-gold); padding: 8px 24px;
+            font-family: inherit; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px;
             cursor: pointer; transition: var(--transition); text-transform: uppercase;
         }
-        .logout-btn:hover { border-color: var(--luxury-gold); color: var(--luxury-gold); }
+        .logout-btn:hover { background: var(--luxury-gold); color: var(--midnight-navy); }
 
+        /* منطقة المحتوى */
         .dashboard-main { padding: 50px; flex-grow: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
-        .section-title { font-size: 2rem; font-weight: 300; margin-bottom: 5px; }
-        .section-title span { font-weight: 700; color: var(--luxury-gold); }
-        .section-desc { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-bottom: 40px; letter-spacing: 1px; text-transform: uppercase; }
+        
+        .view-section { display: none; animation: fadeIn 0.5s ease forwards; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        .section-header { margin-bottom: 40px; border-left: 3px solid var(--luxury-gold); padding-left: 20px; }
+        .section-title { font-size: 1.5rem; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; }
+        .section-title span { font-weight: 700; color: var(--pure-white); }
+        .section-desc { color: var(--luxury-gold); font-size: 0.8rem; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase; }
+
+        /* شبكة المجلدات (المشاريع) */
+        .folders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 60px; }
+        
+        .folder-card {
+            background: var(--midnight-navy); border: 1px solid rgba(255,255,255,0.05);
+            padding: 25px; cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; gap: 15px; border-radius: 4px;
+        }
+        .folder-card:hover { border-color: var(--luxury-gold); transform: translateY(-3px); background: rgba(200, 169, 106, 0.05); }
+        .folder-icon { width: 40px; height: 40px; fill: var(--luxury-gold); }
+        .folder-name { font-size: 1rem; font-weight: 500; letter-spacing: 1px; color: var(--pure-white); }
+
+        /* شبكة الملفات (التصميمات) */
         .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
 
         .asset-card {
-            background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--midnight-navy); border: 1px solid rgba(255, 255, 255, 0.05);
             overflow: hidden; display: flex; flex-direction: column; transition: var(--transition);
-            position: relative;
+            border-radius: 4px;
         }
-        .asset-card:hover { border-color: var(--luxury-gold); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .asset-card:hover { border-color: rgba(200, 169, 106, 0.5); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
 
-        /* شريط الحالة */
-        .status-banner {
-            position: absolute; top: 15px; right: 15px; padding: 5px 12px;
-            font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
-            background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.2);
-            z-index: 10; backdrop-filter: blur(5px);
-        }
-        .status-approved { border-color: var(--approved-green); color: var(--approved-green); }
-        .status-revision { border-color: var(--revision-red); color: var(--revision-red); }
+        .media-viewport { width: 100%; height: 280px; background: #000; position: relative; }
+        .media-viewport img, .media-viewport iframe { width: 100%; height: 100%; object-fit: cover; border: none; transition: var(--transition); }
+        .asset-card:hover .media-viewport img { transform: scale(1.03); opacity: 0.8; }
 
-        .media-viewport { width: 100%; height: 260px; background: #000; position: relative; }
-        .media-viewport img, .media-viewport iframe { width: 100%; height: 100%; object-fit: cover; border: none; }
-
-        .asset-footer { padding: 20px; background: rgba(0,0,0,0.4); }
-        .asset-name { font-size: 1rem; margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .asset-footer { padding: 20px; background: rgba(8, 12, 22, 0.8); border-top: 1px solid rgba(255,255,255,0.02); }
+        .asset-name { font-size: 0.95rem; margin-bottom: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1px; font-weight: 300;}
 
         /* أزرار الإجراءات */
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .action-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
         .btn {
-            padding: 10px; font-family: inherit; font-size: 0.75rem; font-weight: 700;
-            letter-spacing: 1px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; text-transform: uppercase;
+            padding: 12px; font-family: inherit; font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 2px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; text-transform: uppercase;
         }
-        .btn-approve { background: rgba(16, 185, 129, 0.1); color: var(--approved-green); border-color: rgba(16, 185, 129, 0.3); }
-        .btn-approve:hover { background: var(--approved-green); color: var(--midnight-navy); }
-        .btn-revise { background: rgba(239, 68, 68, 0.1); color: var(--revision-red); border-color: rgba(239, 68, 68, 0.3); }
-        .btn-revise:hover { background: var(--revision-red); color: var(--pure-white); }
-        .btn-full { grid-column: span 2; background: var(--luxury-gold); color: var(--midnight-navy); margin-top: 10px; }
+        .btn-full { background: var(--luxury-gold); color: var(--midnight-darker); }
         .btn-full:hover { background: var(--pure-white); }
 
-        .system-loader { text-align: center; padding: 100px; color: var(--luxury-gold); letter-spacing: 4px; font-size: 1.2rem; }
-        .footer-credit { text-align: center; padding: 20px; font-size: 0.7rem; color: rgba(255,255,255,0.2); letter-spacing: 3px; }
+        /* أزرار التنقل الداخلية */
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 10px; margin-bottom: 30px;
+            background: transparent; color: rgba(255,255,255,0.6); border: none; font-family: inherit;
+            font-size: 0.85rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: var(--transition); text-transform: uppercase;
+        }
+        .back-btn:hover { color: var(--luxury-gold); }
 
-        /* نافذة التعليقات */
-        .feedback-modal {
-            display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95);
-            z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);
-        }
-        .modal-container {
-            background: var(--midnight-navy); width: 90%; max-width: 600px;
-            border: 1px solid var(--luxury-gold); display: flex; flex-direction: column; max-height: 85vh;
-        }
-        .modal-header {
-            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .modal-title { font-size: 1.1rem; color: var(--luxury-gold); font-weight: 700; letter-spacing: 2px;}
-        .close-modal { color: var(--pure-white); cursor: pointer; font-size: 1.5rem; transition: var(--transition);}
-        .close-modal:hover { color: var(--revision-red); }
-        
-        .comments-list { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
-        .comment-item { background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid var(--luxury-gold); }
-        .comment-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
-        .comment-text { font-size: 0.9rem; color: var(--pure-white); line-height: 1.5; }
-        
-        .comment-input-area { padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); }
-        .comment-input-area textarea {
-            width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: var(--pure-white); font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 80px; margin-bottom: 10px; outline: none;
-        }
-        .comment-input-area textarea:focus { border-color: var(--luxury-gold); }
-        .submit-comment-btn {
-            background: var(--pure-white); color: var(--midnight-navy); border: none;
-            padding: 10px 20px; font-family: inherit; font-weight: 700; cursor: pointer; float: right; transition: var(--transition);
-        }
-        .submit-comment-btn:hover { background: var(--luxury-gold); }
+        .system-loader { text-align: center; padding: 60px; color: rgba(255,255,255,0.3); letter-spacing: 4px; font-size: 0.9rem; text-transform: uppercase; }
+        .footer-credit { text-align: center; padding: 20px; font-size: 0.65rem; color: rgba(255,255,255,0.15); letter-spacing: 4px; }
     </style>
 </head>
 <body>
 
-    <!-- العلامة المائية الفاخرة -->
-    <div class="premium-watermark">
-        <img src="./Assets/n-mark.png" alt="NEXORA Watermark">
-    </div>
-
     <header class="portal-header">
         <div class="brand-identity">
-            <!-- الشعار والصورة المدمجة -->
-            <img src="./Assets/n-mark.png" alt="NEXORA Icon">
+            <!-- الشعار المبرمج بـ SVG النقي لمنع أخطاء الروابط -->
+            <svg class="svg-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="10,20 40,40 40,80 10,80" fill="#FFFFFF" />
+                <polygon points="35,45 65,60 65,70 35,55" fill="#FFFFFF" />
+                <polygon points="60,50 90,70 90,80 60,60" fill="#FFFFFF" />
+                <polygon points="60,20 90,20 90,65 60,45" fill="#C8A96A" />
+            </svg>
             NEXOR&Lambda;
         </div>
         <div class="user-controls">
-            <span class="client-email" id="userEmail">AUTHENTICATING...</span>
-            <button class="logout-btn" id="logoutBtn">SIGN OUT</button>
+            <span class="client-email" id="userEmail">SYSTEM AUTHENTICATING...</span>
+            <button class="logout-btn" id="logoutBtn">SECURE LOGOUT</button>
         </div>
     </header>
 
     <main class="dashboard-main">
-        <div class="section-title">Project <span>Deliverables</span></div>
-        <div class="section-desc">ENGINEERING PREMIUM BRAND COMMUNICATION</div>
-        
-        <div id="loader" class="system-loader">SYNCING SECURE CLOUD...</div>
-        <div class="assets-grid" id="assetsGrid"></div>
-    </main>
+        <!-- الواجهة الرئيسية (المشاريع والملفات المميزة) -->
+        <div id="mainDashboardView" class="view-section active">
+            
+            <div class="section-header">
+                <div class="section-title">Client <span>Directory</span></div>
+                <div class="section-desc">Select a project to review engineered assets</div>
+            </div>
+            <div id="foldersLoader" class="system-loader">INITIALIZING PROJECT DIRECTORY...</div>
+            <div class="folders-grid" id="foldersGrid"></div>
 
-    <!-- نافذة التعليقات -->
-    <div class="feedback-modal" id="feedbackModal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <div class="modal-title" id="modalFileName">ASSET FEEDBACK</div>
-                <span class="close-modal" onclick="closeFeedbackModal()">✕</span>
+            <div class="section-header" style="margin-top: 60px;">
+                <div class="section-title">Global <span>Showcase</span></div>
+                <div class="section-desc">NEXORA Premium Brand Execution</div>
             </div>
-            <div class="comments-list" id="commentsList"></div>
-            <div class="comment-input-area">
-                <textarea id="newCommentText" placeholder="Write your feedback or revision requests here..."></textarea>
-                <button class="submit-comment-btn" onclick="submitFeedback()">POST FEEDBACK</button>
-            </div>
+            <div id="showcaseLoader" class="system-loader">FETCHING PREMIUM SHOWCASE...</div>
+            <div class="assets-grid" id="showcaseGrid"></div>
+            
         </div>
-    </div>
+
+        <!-- واجهة المشروع الداخلي (ملفات العميل) -->
+        <div id="projectView" class="view-section">
+            <button class="back-btn" onclick="returnToDashboard()">
+                &#8592; RETURN TO DIRECTORY
+            </button>
+            <div class="section-header">
+                <div class="section-title" id="projectNameTitle">Project <span>Details</span></div>
+                <div class="section-desc">SECURE CLIENT ENVIRONMENT</div>
+            </div>
+            <div id="projectFilesLoader" class="system-loader">LOADING PROJECT ASSETS...</div>
+            <div class="assets-grid" id="projectFilesGrid"></div>
+        </div>
+    </main>
 
     <footer class="footer-credit">SYSTEM ARCHITECTURE BY مُحَمَّد فايز</footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // === التهيئة الهندسية للأنظمة ===
         const firebaseConfig = {
             apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
             authDomain: "nexora-a4dcc.firebaseapp.com",
-            projectId: "nexora-a4dcc",
-            storageBucket: "nexora-a4dcc.firebasestorage.app",
-            messagingSenderId: "284864772598",
-            appId: "1:284864772598:web:b1eb60c781a7c829b8afd7"
+            projectId: "nexora-a4dcc"
         };
         const GOOGLE_API_KEY = "AIzaSyBpowVCa3Rdy239fHLnim0YRU2Dp8RqY7g";
+
+        // 1. ضع هنا Folder ID الخاص بأهم تصميمات الوكالة (ليظهر للجميع)
+        const GLOBAL_SHOWCASE_FOLDER = "YOUR_PUBLIC_SHOWCASE_FOLDER_ID"; 
+
+        // 2. مصفوفة العملاء: ضع هنا الـ Parent Folder ID الذي يحتوي داخله على مجلدات المشاريع الفرعية للعميل
         const clientMatrix = {
             "client@nexora.com": "1YHzVEzbTpBjaONRd10I5-6Rtmv70MIbY",
             "amer@nexora.com": "1YHzVEzbTpBjaONRd10I5-6Rtmv70MIbY"
@@ -234,17 +200,11 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUserEmail = "";
-        let currentFileId = "";
-        let unsubscribeComments = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUserEmail = user.email.toLowerCase();
-                document.getElementById('userEmail').textContent = currentUserEmail;
-                initializeDashboard(currentUserEmail);
+                document.getElementById('userEmail').textContent = user.email;
+                loadDashboardArchitecture(user.email.toLowerCase());
             } else {
                 window.location.href = 'login.html';
             }
@@ -254,43 +214,92 @@
             signOut(auth).then(() => { window.location.href = 'login.html'; });
         });
 
-        async function initializeDashboard(email) {
-            const folderId = clientMatrix[email];
-            const loader = document.getElementById('loader');
-            if (!folderId) {
-                loader.textContent = "NO SECURE FOLDER ASSIGNED."; return;
+        // محرك تحميل البنية المعمارية الأساسية
+        async function loadDashboardArchitecture(email) {
+            const clientParentFolder = clientMatrix[email];
+            
+            // تحميل المجلدات الفرعية الخاصة بالعميل (مشاريع الشركة)
+            if (clientParentFolder) {
+                fetchClientProjects(clientParentFolder);
+            } else {
+                document.getElementById('foldersLoader').textContent = "ACCESS DENIED: NO DIRECTORY ASSIGNED.";
             }
 
-            const queryParam = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
-            const url = `https://www.googleapis.com/drive/v3/files?q=${queryParam}&fields=files(id,name,mimeType,thumbnailLink)&key=${GOOGLE_API_KEY}`;
+            // تحميل مساحة العرض العامة للوكالة (اختياري، يمكنك تركه فارغاً إذا لم تجهز الفولدر بعد)
+            if(GLOBAL_SHOWCASE_FOLDER !== "YOUR_PUBLIC_SHOWCASE_FOLDER_ID") {
+                fetchAssets(GLOBAL_SHOWCASE_FOLDER, 'showcaseGrid', 'showcaseLoader');
+            } else {
+                document.getElementById('showcaseLoader').style.display = 'none';
+            }
+        }
+
+        // دالة جلب المجلدات الفرعية (مشاريع العميل)
+        async function fetchClientProjects(parentFolderId) {
+            const query = encodeURIComponent(`'${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`);
+            const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)&key=${GOOGLE_API_KEY}`;
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                const assets = data.files.filter(f => f.mimeType.includes('image') || f.mimeType.includes('video'));
-                loader.style.display = 'none';
-                renderAssets(assets);
+                document.getElementById('foldersLoader').style.display = 'none';
+                renderFolders(data.files);
             } catch (error) {
-                loader.textContent = "SYSTEM ERROR.";
+                document.getElementById('foldersLoader').textContent = "SYSTEM ERROR FETCHING DIRECTORY.";
             }
         }
 
-        async function renderAssets(files) {
-            const grid = document.getElementById('assetsGrid');
-            grid.innerHTML = '';
+        // دالة جلب الملفات داخل أي مجلد (تستخدم للمشاريع الخاصة وللواجهة العامة)
+        async function fetchAssets(folderId, containerId, loaderId) {
+            const query = encodeURIComponent(`'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`);
+            const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name,mimeType,thumbnailLink)&key=${GOOGLE_API_KEY}`;
 
-            for (const file of files) {
+            document.getElementById(loaderId).style.display = 'block';
+            document.getElementById(containerId).innerHTML = '';
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                document.getElementById(loaderId).style.display = 'none';
+                renderAssetsGrid(data.files, containerId);
+            } catch (error) {
+                document.getElementById(loaderId).textContent = "SYSTEM ERROR FETCHING ASSETS.";
+            }
+        }
+
+        // دوال رسم واجهة المستخدم (UI Rendering)
+        function renderFolders(folders) {
+            const grid = document.getElementById('foldersGrid');
+            if(!folders || folders.length === 0) {
+                grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px;">NO ACTIVE PROJECTS FOUND IN DIRECTORY.</div>';
+                return;
+            }
+
+            folders.forEach(folder => {
+                const card = document.createElement('div');
+                card.className = 'folder-card';
+                card.onclick = () => openProjectSpace(folder.id, folder.name);
+                card.innerHTML = `
+                    <svg class="folder-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                    </svg>
+                    <div class="folder-name">${folder.name.toUpperCase()}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAssetsGrid(files, containerId) {
+            const grid = document.getElementById(containerId);
+            if(!files || files.length === 0) {
+                grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px; grid-column: 1/-1;">NO SECURE ASSETS FOUND.</div>';
+                return;
+            }
+
+            files.forEach(file => {
                 const isVideo = file.mimeType.includes('video');
                 let highResImage = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+/, '=s1000') : '';
                 const previewUrl = isVideo ? `https://drive.google.com/file/d/${file.id}/preview` : highResImage;
                 const cleanName = file.name.split('.').slice(0, -1).join('.') || file.name;
-
-                const statusDoc = await getDoc(doc(db, "asset_status", file.id));
-                const statusData = statusDoc.exists() ? statusDoc.data().status : 'PENDING';
-                
-                let statusHtml = '';
-                if(statusData === 'APPROVED') statusHtml = `<div class="status-banner status-approved">APPROVED</div>`;
-                if(statusData === 'REVISION') statusHtml = `<div class="status-banner status-revision">REVISION REQUESTED</div>`;
 
                 const mediaMarkup = isVideo 
                     ? `<iframe src="${previewUrl}" loading="lazy"></iframe>`
@@ -299,102 +308,30 @@
                 const card = document.createElement('div');
                 card.className = 'asset-card';
                 card.innerHTML = `
-                    ${statusHtml}
                     <div class="media-viewport">${mediaMarkup}</div>
                     <div class="asset-footer">
                         <div class="asset-name">${cleanName}</div>
                         <div class="action-grid">
-                            <button class="btn btn-approve" onclick="updateStatus('${file.id}', 'APPROVED')">APPROVE</button>
-                            <button class="btn btn-revise" onclick="updateStatus('${file.id}', 'REVISION')">REVISE</button>
-                            <button class="btn btn-full" onclick="openFeedbackModal('${file.id}', '${cleanName}')">VIEW / ADD FEEDBACK</button>
+                            <button class="btn btn-full" onclick="alert('Feature linked to admin system.')">VIEW DETAILS</button>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
-            }
-        }
-
-        window.updateStatus = async function(fileId, newStatus) {
-            try {
-                await setDoc(doc(db, "asset_status", fileId), {
-                    status: newStatus,
-                    updatedBy: currentUserEmail,
-                    timestamp: new Date()
-                });
-                window.location.reload();
-            } catch (error) {
-                alert("Error updating status.");
-            }
-        }
-
-        /* دوال التعليقات والترتيب المحلي لتخطي مشكلة الفهارس */
-        window.openFeedbackModal = function(fileId, fileName) {
-            currentFileId = fileId;
-            document.getElementById('modalFileName').textContent = fileName.toUpperCase();
-            document.getElementById('feedbackModal').style.display = 'flex';
-            
-            const commentsRef = collection(db, "asset_comments");
-            const q = query(commentsRef, where("fileId", "==", fileId)); 
-            const commentsList = document.getElementById('commentsList');
-            commentsList.innerHTML = '<div style="color:#C8A96A; text-align:center;">LOADING FEEDBACK...</div>';
-
-            unsubscribeComments = onSnapshot(q, (snapshot) => {
-                commentsList.innerHTML = '';
-                if (snapshot.empty) {
-                    commentsList.innerHTML = '<div style="color:rgba(255,255,255,0.4); text-align:center;">No feedback yet. Be the first to comment.</div>';
-                    return;
-                }
-
-                const comments = [];
-                snapshot.forEach((doc) => comments.push(doc.data()));
-                comments.sort((a, b) => {
-                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
-                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
-                    return timeA - timeB;
-                });
-
-                comments.forEach((data) => {
-                    const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now';
-                    commentsList.innerHTML += `
-                        <div class="comment-item">
-                            <div class="comment-meta">
-                                <span>${data.userEmail.split('@')[0].toUpperCase()}</span>
-                                <span>${date}</span>
-                            </div>
-                            <div class="comment-text">${data.text}</div>
-                        </div>
-                    `;
-                });
-                commentsList.scrollTop = commentsList.scrollHeight;
-            }, (error) => {
-                commentsList.innerHTML = '<div style="color:#ef4444;">Error loading comments: ' + error.message + '</div>';
             });
         }
 
-        window.submitFeedback = async function() {
-            const textInput = document.getElementById('newCommentText');
-            const text = textInput.value.trim();
-            if (!text || !currentFileId) return;
-
-            textInput.value = '';
-            textInput.placeholder = 'Saving feedback...';
-
-            try {
-                await addDoc(collection(db, "asset_comments"), {
-                    fileId: currentFileId,
-                    userEmail: currentUserEmail,
-                    text: text,
-                    timestamp: serverTimestamp()
-                });
-                textInput.placeholder = 'Write your feedback or revision requests here...';
-            } catch (error) {
-                alert("Failed to save feedback.");
-            }
+        // هندسة التنقل بين الواجهات
+        window.openProjectSpace = function(folderId, folderName) {
+            document.getElementById('mainDashboardView').classList.remove('active');
+            document.getElementById('projectView').classList.add('active');
+            document.getElementById('projectNameTitle').innerHTML = `${folderName} <span>Assets</span>`;
+            
+            fetchAssets(folderId, 'projectFilesGrid', 'projectFilesLoader');
         }
 
-        window.closeFeedbackModal = function() {
-            document.getElementById('feedbackModal').style.display = 'none';
-            if (unsubscribeComments) unsubscribeComments();
+        window.returnToDashboard = function() {
+            document.getElementById('projectView').classList.remove('active');
+            document.getElementById('mainDashboardView').classList.add('active');
         }
     </script>
 </body>
