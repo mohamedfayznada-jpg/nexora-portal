@@ -146,7 +146,14 @@
                 </table>
             </div>
         </div>
-
+<div class="admin-panel">
+    <div class="section-desc">Manage Global Showcase Assets</div>
+    <div class="admin-input-group">
+        <input type="text" id="assetUrl" class="admin-input" placeholder="Image/Video URL (Direct Link)">
+        <input type="text" id="assetTitle" class="admin-input" placeholder="Asset Title">
+        <button class="admin-btn" onclick="addGlobalAsset()">ADD TO SHOWCASE</button>
+    </div>
+</div>
         <div id="mainDashboardView" class="view-section">
             <div class="section-header">
                 <div class="section-title">Client <span>Directory</span></div>
@@ -357,6 +364,21 @@
             document.getElementById('projectView').classList.remove('active');
             document.getElementById('mainDashboardView').classList.add('active');
         }
+        import { addDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+window.addGlobalAsset = async function() {
+    const url = document.getElementById('assetUrl').value;
+    const title = document.getElementById('assetTitle').value;
+    
+    if(!url || !title) return alert("All fields required");
+
+    await addDoc(collection(db, "global_assets"), {
+        url: url,
+        title: title,
+        timestamp: new Date()
+    });
+    alert("Asset added to global showcase");
+};
     </script>
 </body>
 </html>
