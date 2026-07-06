@@ -152,6 +152,10 @@
             .folders-grid, .assets-grid { grid-template-columns: 1fr; }
             .asset-card { width: 100%; }
         }
+        body {
+    overscroll-behavior-y: contain; /* لمنع الارتداد عند السحب */
+    -webkit-tap-highlight-color: transparent;
+}
     </style>
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
