@@ -194,8 +194,8 @@
                 </div>
                 <div id="adminMessage" style="font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 20px;"></div>
                 
-                <table class="mapping-table">
-                    <thead><tr><th>Client Account</th><th>Drive Directory ID</th></tr></thead>
+              <table class="mapping-table">
+                    <thead><tr><th>Client Account</th><th>Drive Directory ID</th><th>Action</th></tr></thead>
                     <tbody id="mappingTableBody"></tbody>
                 </table>
             </div>
@@ -370,9 +370,13 @@
                     tbody.innerHTML += `
                         <tr>
                             <td>${email}</td>
-                            <td style="color:rgba(255,255,255,0.5);">${folderId}</td>
+                            <td style="color:rgba(255,255,255,0.5); font-size: 0.75rem;">${folderId}</td>
+                            <td>
+                                <button class="btn" style="padding: 6px 12px; font-size: 0.65rem; border: 1px solid var(--revision-red); color: var(--revision-red); background: transparent;" onclick="destroyClientMapping('${email}', '${folderId}')">REVOKE & DESTROY</button>
+                            </td>
                         </tr>
                     `;
+
                     select.innerHTML += `<option value="${email}">${email.toUpperCase()}</option>`;
                 });
             });
@@ -826,6 +830,33 @@
         window.closeMediaViewer = function() {
             document.getElementById('mediaViewerModal').style.display = 'none';
             document.getElementById('viewerContainer').innerHTML = '';
+        }
+        window.destroyClientMapping = async function(email, folderId) {
+            if(!confirm(`SYSTEM WARNING: THIS WILL REVOKE ACCESS FOR [${email}] AND PERMANENTLY DESTROY THEIR DIRECTORY FROM DRIVE. PROCEED?`)) return;
+
+            if (!driveAccessToken) {
+                alert("SYSTEM ERROR: PLEASE AUTHORIZE SYSTEM EXECUTIONS FIRST (TOP BUTTON).");
+                return;
+            }
+
+            try {
+                // 1. تدمير المجلد من جوجل درايف
+                const driveResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${folderId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+                });
+                
+                if(!driveResponse.ok && driveResponse.status !== 404) {
+                    throw new Error("DRIVE DELETION PROTOCOL FAILED.");
+                }
+
+                // 2. مسح الربط من قاعدة البيانات لمنع الدخول
+                await deleteDoc(doc(db, "client_mappings", email));
+                
+                alert("CLIENT REVOKED AND DIRECTORY DESTROYED.");
+            } catch(e) {
+                alert("ERROR DURING DELETION SEQUENCE: " + e.message);
+            }
         }
     </script>
 </body>
