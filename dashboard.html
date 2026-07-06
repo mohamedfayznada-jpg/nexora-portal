@@ -12,6 +12,8 @@
             --luxury-gold: #C8A96A;
             --pure-white: #F8FAFC;
             --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --approved-green: #10B981;
+            --revision-red: #EF4444;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -96,7 +98,12 @@
         .media-viewport { width: 100%; height: 280px; background: #000; position: relative; }
         .media-viewport img, .media-viewport iframe { width: 100%; height: 100%; object-fit: cover; border: none; }
         .asset-footer { padding: 20px; background: rgba(8, 12, 22, 0.8); border-top: 1px solid rgba(255,255,255,0.02); }
-        .asset-name { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1px; }
+        .asset-name { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1px; margin-bottom: 15px; }
+
+        .action-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .btn { padding: 12px; font-family: inherit; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; text-transform: uppercase; text-align: center;}
+        .btn-showcase { background: transparent; color: var(--luxury-gold); border-color: var(--luxury-gold); }
+        .btn-showcase:hover { background: var(--luxury-gold); color: var(--midnight-darker); }
 
         .back-btn { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 30px; background: transparent; color: rgba(255,255,255,0.6); border: none; font-family: inherit; font-size: 0.85rem; font-weight: 700; letter-spacing: 2px; cursor: pointer; transition: var(--transition); text-transform: uppercase; }
         .back-btn:hover { color: var(--luxury-gold); }
@@ -113,7 +120,7 @@
                 <polygon points="60,50 90,70 90,80 60,60" fill="#FFFFFF" />
                 <polygon points="60,20 90,20 90,65 60,45" fill="#C8A96A" />
             </svg>
-            EXOR&Lambda;
+            NEXOR&Lambda;
         </div>
         <div class="user-controls">
             <a href="index.html" class="nav-action-btn">RETURN TO MAIN SITE</a>
@@ -132,28 +139,30 @@
             
             <div class="admin-panel">
                 <div class="admin-input-group">
-                    <input type="email" id="mapEmail" class="admin-input" placeholder="Client Email Address (e.g., brand@company.com)">
+                    <input type="email" id="mapEmail" class="admin-input" placeholder="Client Email Address">
                     <input type="text" id="mapFolder" class="admin-input" placeholder="Google Drive Parent Folder ID">
                     <button class="admin-btn" onclick="saveClientMapping()">MAP DIRECTORY</button>
                 </div>
                 <div id="adminMessage" style="font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 20px;"></div>
-
-
                 
                 <table class="mapping-table">
                     <thead><tr><th>Client Account</th><th>Drive Directory ID</th></tr></thead>
                     <tbody id="mappingTableBody"></tbody>
                 </table>
             </div>
+
+            <div class="section-header">
+                <div class="section-title">Manage <span>Global Showcase Assets</span></div>
+                <div class="section-desc">Enter any folder ID below to select assets for showcase</div>
+            </div>
+            <div class="admin-panel">
+                <div class="admin-input-group">
+                    <input type="text" id="adminBrowseFolder" class="admin-input" placeholder="Enter Google Drive Folder ID to load assets">
+                    <button class="admin-btn" onclick="adminLoadFolder()">LOAD ASSETS</button>
+                </div>
+            </div>
         </div>
-<div class="admin-panel">
-    <div class="section-desc">Manage Global Showcase Assets</div>
-    <div class="admin-input-group">
-        <input type="text" id="assetUrl" class="admin-input" placeholder="Image/Video URL (Direct Link)">
-        <input type="text" id="assetTitle" class="admin-input" placeholder="Asset Title">
-        <button class="admin-btn" onclick="addGlobalAsset()">ADD TO SHOWCASE</button>
-    </div>
-</div>
+
         <div id="mainDashboardView" class="view-section">
             <div class="section-header">
                 <div class="section-title">Client <span>Directory</span></div>
@@ -161,13 +170,20 @@
             </div>
             <div id="foldersLoader" class="system-loader">VERIFYING DIRECTORY ASSIGNMENT...</div>
             <div class="folders-grid" id="foldersGrid"></div>
+
+            <div class="section-header" style="margin-top: 60px;">
+                <div class="section-title">Global <span>Showcase</span></div>
+                <div class="section-desc">Selected Premium Executions</div>
+            </div>
+            <div id="globalShowcaseLoader" class="system-loader">LOADING SHOWCASE ASSETS...</div>
+            <div class="assets-grid" id="globalShowcaseGrid"></div>
         </div>
 
         <div id="projectView" class="view-section">
             <button class="back-btn" onclick="returnToDashboard()">&#8592; RETURN TO DIRECTORY</button>
             <div class="section-header">
                 <div class="section-title" id="projectNameTitle">Project <span>Details</span></div>
-                <div class="section-desc">SECURE CLIENT ENVIRONMENT</div>
+                <div class="section-desc">SECURE ENVIRONMENT</div>
             </div>
             <div id="projectFilesLoader" class="system-loader">LOADING PROJECT ASSETS...</div>
             <div class="assets-grid" id="projectFilesGrid"></div>
@@ -175,10 +191,12 @@
 
     </main>
 
+    <footer class="footer-credit">SYSTEM ARCHITECTURE BY SILENT ARCHITECT</footer>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
@@ -198,10 +216,17 @@
                 currentUserEmail = user.email.toLowerCase();
                 document.getElementById('userEmail').textContent = currentUserEmail;
                 
+                // تصفية أمنية صارمة: الأدمن فقط يرى لوحة الإدارة، والعميل يُوجّه مباشرة للمجلدات
                 if (currentUserEmail === 'mfayez@nexora.com') {
+                    document.getElementById('adminView').classList.add('active');
+                    document.getElementById('mainDashboardView').classList.add('active');
                     initializeAdminCenter();
+                    loadGlobalShowcase();
                 } else {
+                    document.getElementById('adminView').classList.remove('active');
+                    document.getElementById('mainDashboardView').classList.add('active');
                     initializeClientPortal(currentUserEmail);
+                    loadGlobalShowcase();
                 }
             } else {
                 window.location.href = 'login.html';
@@ -212,10 +237,7 @@
             signOut(auth).then(() => { window.location.href = 'login.html'; });
         });
 
-        // محرك لوحة الإدارة
         function initializeAdminCenter() {
-            document.getElementById('adminView').classList.add('active');
-            
             const mappingRef = collection(db, "client_mappings");
             onSnapshot(mappingRef, (snapshot) => {
                 const tbody = document.getElementById('mappingTableBody');
@@ -229,6 +251,7 @@
                     `;
                 });
             });
+            document.getElementById('foldersLoader').style.display = 'none';
         }
 
         window.saveClientMapping = async function() {
@@ -254,11 +277,15 @@
             }
         }
 
-        // محرك العميل
+        window.adminLoadFolder = function() {
+            const folderId = document.getElementById('adminBrowseFolder').value.trim();
+            if(folderId) {
+                openProjectSpace(folderId, "Admin Panel Management");
+            }
+        }
+
         async function initializeClientPortal(email) {
-            document.getElementById('mainDashboardView').classList.add('active');
             const loader = document.getElementById('foldersLoader');
-            
             try {
                 const docRef = doc(db, "client_mappings", email);
                 const docSnap = await getDoc(docRef);
@@ -292,6 +319,7 @@
 
         function renderFolders(folders) {
             const grid = document.getElementById('foldersGrid');
+            grid.innerHTML = '';
             if(!folders || folders.length === 0) {
                 grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px;">NO ACTIVE PROJECTS FOUND.</div>';
                 return;
@@ -313,6 +341,7 @@
 
         window.openProjectSpace = async function(folderId, folderName) {
             document.getElementById('mainDashboardView').classList.remove('active');
+            document.getElementById('adminView').classList.remove('active');
             document.getElementById('projectView').classList.add('active');
             document.getElementById('projectNameTitle').innerHTML = `${folderName} <span>Assets</span>`;
             
@@ -349,36 +378,94 @@
                     ? `<iframe src="${previewUrl}" loading="lazy"></iframe>`
                     : `<img src="${previewUrl}" loading="lazy" alt="${cleanName}">`;
 
-                grid.innerHTML += `
-                    <div class="asset-card">
-                        <div class="media-viewport">${mediaMarkup}</div>
-                        <div class="asset-footer">
-                            <div class="asset-name">${cleanName}</div>
+                const card = document.createElement('div');
+                card.className = 'asset-card';
+                
+                // تحديد خيارات التحكم للأدمن فقط داخل بطاقات العرض
+                let adminControlsHtml = '';
+                if(currentUserEmail === 'mfayez@nexora.com') {
+                    adminControlsHtml = `
+                        <div class="action-grid" style="margin-top:15px;">
+                            <button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')">TOGGLE SHOWCASE</button>
                         </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="media-viewport">${mediaMarkup}</div>
+                    <div class="asset-footer">
+                        <div class="asset-name">${cleanName}</div>
+                        ${adminControlsHtml}
                     </div>
                 `;
+                grid.appendChild(card);
+            });
+        }
+
+        // محرك إضافة وإزالة العناصر من الـ Global Showcase ديناميكياً من الموقع
+        window.toggleGlobalShowcase = async function(fileId, name, mimeType, thumbnail) {
+            const docRef = doc(db, "global_showcase", fileId);
+            try {
+                const docSnap = await getDoc(docRef);
+                if(docSnap.exists()) {
+                    await deleteDoc(docRef);
+                    alert("ASSET REMOVED FROM GLOBAL SHOWCASE.");
+                } else {
+                    await setDoc(docRef, {
+                        name: name,
+                        mimeType: mimeType,
+                        thumbnail: thumbnail,
+                        timestamp: new Date()
+                    });
+                    alert("ASSET ADDED TO GLOBAL SHOWCASE.");
+                }
+            } catch(e) {
+                alert("DATABASE ERROR.");
+            }
+        }
+
+        // محرك استرجاع وعرض الـ Global Showcase المختار من الأدمن بالوقت الفعلي للجميع
+        function loadGlobalShowcase() {
+            const showcaseRef = collection(db, "global_showcase");
+            const loader = document.getElementById('globalShowcaseLoader');
+            const grid = document.getElementById('globalShowcaseGrid');
+
+            onSnapshot(showcaseRef, (snapshot) => {
+                grid.innerHTML = '';
+                loader.style.display = 'none';
+                if(snapshot.empty) {
+                    grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px; grid-column:1/-1;">NO SELECTED SHOWCASE ASSETS.</div>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const isVideo = data.mimeType.includes('video');
+                    const previewUrl = isVideo ? `https://drive.google.com/file/d/${doc.id}/preview` : data.thumbnail;
+
+                    const mediaMarkup = isVideo 
+                        ? `<iframe src="${previewUrl}" loading="lazy"></iframe>`
+                        : `<img src="${previewUrl}" loading="lazy" alt="${data.name}">`;
+
+                    grid.innerHTML += `
+                        <div class="asset-card">
+                            <div class="media-viewport">${mediaMarkup}</div>
+                            <div class="asset-footer">
+                                <div class="asset-name">${data.name}</div>
+                            </div>
+                        </div>
+                    `;
+                });
             });
         }
 
         window.returnToDashboard = function() {
             document.getElementById('projectView').classList.remove('active');
+            if (currentUserEmail === 'mfayez@nexora.com') {
+                document.getElementById('adminView').classList.add('active');
+            }
             document.getElementById('mainDashboardView').classList.add('active');
         }
-        import { addDoc, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-window.addGlobalAsset = async function() {
-    const url = document.getElementById('assetUrl').value;
-    const title = document.getElementById('assetTitle').value;
-    
-    if(!url || !title) return alert("All fields required");
-
-    await addDoc(collection(db, "global_assets"), {
-        url: url,
-        title: title,
-        timestamp: new Date()
-    });
-    alert("Asset added to global showcase");
-};
     </script>
 </body>
 </html>
