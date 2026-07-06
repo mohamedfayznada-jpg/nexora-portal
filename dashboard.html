@@ -472,7 +472,7 @@
             }
         }
 
-        function renderAssetsGrid(files) {
+       function renderAssetsGrid(files) {
             const grid = document.getElementById('projectFilesGrid');
             if(!files || files.length === 0) {
                 grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px;">NO ASSETS FOUND IN THIS PROJECT.</div>';
@@ -494,7 +494,10 @@
                 
                 let adminControlsHtml = '';
                 if(currentUserEmail === 'mfayez@nexora.com') {
-                    adminControlsHtml = `<button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')" style="width:100%; margin-top:10px;">TOGGLE SHOWCASE</button>`;
+                    adminControlsHtml = `
+                        <button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')" style="width:100%; margin-top:10px;">TOGGLE SHOWCASE</button>
+                        <button class="btn" onclick="deleteAsset('${file.id}')" style="width:100%; margin-top:10px; background: rgba(239, 68, 68, 0.1); color: var(--revision-red); border: 1px solid rgba(239, 68, 68, 0.3);">DELETE ASSET</button>
+                    `;
                 }
 
                 card.innerHTML = `
@@ -613,7 +616,7 @@
             document.getElementById('mainDashboardView').classList.add('active');
         }
 
-        window.provisionNewClient = async function() {
+ window.provisionNewClient = async function() {
             const email = document.getElementById('newClientEmail').value.toLowerCase().trim();
             const password = document.getElementById('newClientPassword').value;
             const projectName = document.getElementById('newClientProjectName').value.trim();
@@ -632,39 +635,53 @@
             }
 
             msgBox.style.color = "var(--luxury-gold)";
-            msgBox.textContent = "PROVISIONING IN PROGRESS...";
+            msgBox.textContent = "PROVISIONING WORKSPACE IN PROGRESS...";
 
             try {
-                const folderMetadata = {
-                    name: projectName,
+                // 1. إنشاء المجلد الرئيسي للعميل
+                const clientFolderMetadata = {
+                    name: `WORKSPACE: ${email}`,
                     mimeType: 'application/vnd.google-apps.folder',
                     parents: [NEXORA_ROOT_DRIVE_FOLDER]
                 };
 
-                const driveResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
+                const clientFolderResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + driveAccessToken,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(folderMetadata)
+                    headers: { 'Authorization': 'Bearer ' + driveAccessToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(clientFolderMetadata)
                 });
 
-                if (!driveResponse.ok) throw new Error("Drive Folder Creation Failed");
-                const driveData = await driveResponse.json();
-                const newFolderId = driveData.id;
+                if (!clientFolderResponse.ok) throw new Error("Client Workspace Creation Failed");
+                const clientFolderData = await clientFolderResponse.json();
+                const clientWorkspaceId = clientFolderData.id;
 
+                // 2. إنشاء مجلد المشروع الأول داخل مجلد العميل
+                const projectFolderMetadata = {
+                    name: projectName,
+                    mimeType: 'application/vnd.google-apps.folder',
+                    parents: [clientWorkspaceId]
+                };
+
+                const projectFolderResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + driveAccessToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(projectFolderMetadata)
+                });
+
+                if (!projectFolderResponse.ok) throw new Error("Project Folder Creation Failed");
+
+                // 3. إنشاء حساب المستخدم وربطه
                 await createUserWithEmailAndPassword(secondaryAuth, email, password);
                 await secondarySignOut(secondaryAuth);
 
                 await setDoc(doc(db, "client_mappings", email), { 
-                    folderId: newFolderId, 
+                    folderId: clientWorkspaceId, 
                     updatedBy: currentUserEmail, 
                     timestamp: new Date() 
                 });
 
                 msgBox.style.color = "#10B981";
-                msgBox.textContent = "CLIENT PROVISIONED AND DIRECTORY SECURED.";
+                msgBox.textContent = "CLIENT WORKSPACE AND INITIAL PROJECT SECURED.";
                 
                 document.getElementById('newClientEmail').value = '';
                 document.getElementById('newClientPassword').value = '';
@@ -743,6 +760,29 @@
         window.closeFeedbackModal = function() {
             document.getElementById('feedbackModal').style.display = 'none';
             if (unsubscribeComments) unsubscribeComments();
+        }
+        window.deleteAsset = async function(fileId) {
+            if(!driveAccessToken) {
+                alert("SYSTEM ERROR: PLEASE AUTHORIZE SYSTEM EXECUTIONS FIRST.");
+                return;
+            }
+            if(!confirm("WARNING: ARE YOU SURE YOU WANT TO PERMANENTLY DELETE THIS ASSET?")) return;
+            
+            try {
+                const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + driveAccessToken }
+                });
+                
+                if(response.ok) {
+                    alert("ASSET PERMANENTLY DELETED.");
+                    openProjectSpace(currentOpenFolderId, currentOpenFolderName); // إعادة تحميل واجهة المشروع
+                } else {
+                    alert("AUTHORIZATION ERROR: CANNOT DELETE ASSET.");
+                }
+            } catch(e) {
+                alert("NETWORK ERROR DURING DELETION.");
+            }
         }
     </script>
 </body>
