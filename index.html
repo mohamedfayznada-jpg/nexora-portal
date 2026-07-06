@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,6 @@
             --midnight-darker: #080C16;
             --luxury-gold: #C8A96A;
             --pure-white: #F8FAFC;
-            --card-bg: rgba(30, 41, 59, 0.4);
             --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -27,43 +26,37 @@
             position: relative;
         }
 
-        /* شبكة الخلفية الهندسية */
         .bg-grid {
             position: fixed; inset: 0; z-index: -2;
-            background-image: linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px);
-            background-size: 50px 50px;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
 
-        /* العلامة المائية الفاخرة في المنتصف */
-        .global-watermark {
-            position: fixed;
-            top: 50%;
-            left: 50%;
+        /* العلامة المائية المدمجة برمجياً لتجنب الانكسار */
+        .svg-watermark {
+            position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            height: 90vh;
-            opacity: 0.03; /* شفافية باهتة وفخمة */
+            height: 110vh; width: auto;
+            opacity: 0.02; z-index: -1;
             pointer-events: none;
-            z-index: -1;
-            user-select: none;
+            filter: grayscale(100%);
         }
 
-        .global-watermark img { height: 100%; width: auto; filter: grayscale(100%); }
-
-        /* شريط التنقل العلوي (Navigation Bar) */
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 20px 50px; background: rgba(8, 12, 22, 0.8);
-            border-bottom: 1px solid rgba(200, 169, 106, 0.15);
+            padding: 25px 50px; background: rgba(8, 12, 22, 0.9);
+            border-bottom: 1px solid rgba(200, 169, 106, 0.2);
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(15px);
         }
 
         .brand-logo {
             display: flex; align-items: center; gap: 15px;
             font-size: 1.8rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white); text-decoration: none;
         }
-        .brand-logo img { height: 35px; width: auto; }
+
+        .svg-icon { width: 35px; height: 35px; }
 
         .nav-links { display: flex; gap: 40px; align-items: center; }
         .nav-links a {
@@ -74,73 +67,68 @@
 
         .client-portal-btn {
             background: var(--luxury-gold); color: var(--midnight-darker) !important;
-            padding: 10px 25px; font-weight: 700; border-radius: 2px;
+            padding: 12px 30px; font-weight: 700; border-radius: 0; border: 1px solid var(--luxury-gold);
+            transition: var(--transition);
         }
-        .client-portal-btn:hover { background: var(--pure-white); }
+        .client-portal-btn:hover { background: transparent; color: var(--luxury-gold) !important; }
 
-        /* الأقسام العامة */
-        section { padding: 120px 50px; max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+        section { padding: 150px 50px; max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
         
-        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header { text-align: left; margin-bottom: 60px; border-left: 4px solid var(--luxury-gold); padding-left: 20px; }
         .section-title { font-size: 2.5rem; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; }
-        .section-title span { font-weight: 700; color: var(--luxury-gold); }
-        .section-subtitle { color: rgba(255,255,255,0.5); font-size: 1rem; margin-top: 10px; letter-spacing: 2px; text-transform: uppercase; }
+        .section-title span { font-weight: 700; color: var(--pure-white); }
+        .section-subtitle { color: var(--luxury-gold); font-size: 0.9rem; margin-top: 10px; letter-spacing: 3px; text-transform: uppercase; }
 
-        /* قسم البطل (Hero Section) */
-        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .hero h1 { font-size: 4.5rem; font-weight: 300; line-height: 1.1; margin-bottom: 20px; letter-spacing: 2px; }
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+        .hero h1 { font-size: 5rem; font-weight: 300; line-height: 1.1; margin-bottom: 25px; letter-spacing: 2px; }
         .hero h1 span { font-weight: 700; color: var(--luxury-gold); display: block; }
-        .hero p { font-size: 1.2rem; color: rgba(255,255,255,0.7); max-width: 700px; margin-bottom: 40px; font-weight: 300; }
-        .hero-cta { display: inline-block; padding: 15px 40px; background: transparent; border: 1px solid var(--luxury-gold); color: var(--luxury-gold); text-decoration: none; font-size: 0.9rem; letter-spacing: 4px; text-transform: uppercase; transition: var(--transition); }
+        .hero p { font-size: 1.2rem; color: rgba(255,255,255,0.6); max-width: 600px; margin-bottom: 50px; font-weight: 300; line-height: 1.8; }
+        
+        .hero-cta { display: inline-block; padding: 18px 45px; background: transparent; border: 1px solid var(--luxury-gold); color: var(--luxury-gold); text-decoration: none; font-size: 0.9rem; letter-spacing: 4px; text-transform: uppercase; transition: var(--transition); font-weight: 700; }
         .hero-cta:hover { background: var(--luxury-gold); color: var(--midnight-darker); }
 
-        /* قسم من نحن (About) */
         .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .feature-card { background: var(--card-bg); padding: 40px; border-top: 2px solid var(--luxury-gold); border-bottom: 1px solid rgba(255,255,255,0.05); transition: var(--transition); }
-        .feature-card:hover { transform: translateY(-10px); background: rgba(200, 169, 106, 0.05); }
-        .feature-card h3 { font-size: 1.5rem; color: var(--pure-white); margin-bottom: 15px; letter-spacing: 2px; }
-        .feature-card p { color: rgba(255,255,255,0.6); font-size: 0.95rem; font-weight: 300; }
+        .feature-card { background: rgba(15, 23, 42, 0.6); padding: 50px 40px; border-top: 2px solid var(--luxury-gold); border-bottom: 1px solid rgba(255,255,255,0.05); transition: var(--transition); backdrop-filter: blur(10px); }
+        .feature-card:hover { transform: translateY(-5px); background: rgba(200, 169, 106, 0.05); border-color: var(--pure-white); }
+        .feature-card h3 { font-size: 1.5rem; color: var(--pure-white); margin-bottom: 20px; letter-spacing: 2px; font-weight: 400; }
+        .feature-card p { color: rgba(255,255,255,0.5); font-size: 0.95rem; font-weight: 300; line-height: 1.8; }
 
-        /* قسم الأسعار والخدمات (Pricing) */
-        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .price-card { background: var(--midnight-navy); padding: 50px 40px; border: 1px solid rgba(255,255,255,0.05); text-align: center; position: relative; overflow: hidden; }
-        .price-card.premium { border-color: var(--luxury-gold); transform: scale(1.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .price-card.premium::before { content: 'MOST POPULAR'; position: absolute; top: 15px; right: -35px; background: var(--luxury-gold); color: var(--midnight-darker); font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; padding: 5px 40px; transform: rotate(45deg); }
-        .plan-name { font-size: 1.2rem; letter-spacing: 3px; color: var(--luxury-gold); margin-bottom: 15px; }
-        .plan-price { font-size: 3rem; font-weight: 700; margin-bottom: 30px; }
-        .plan-features { list-style: none; margin-bottom: 40px; text-align: left; }
-        .plan-features li { margin-bottom: 15px; font-size: 0.9rem; color: rgba(255,255,255,0.7); border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
-        .plan-btn { display: block; padding: 15px; border: 1px solid rgba(255,255,255,0.2); color: var(--pure-white); text-decoration: none; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; transition: var(--transition); }
-        .plan-btn:hover, .price-card.premium .plan-btn { background: var(--luxury-gold); color: var(--midnight-darker); border-color: var(--luxury-gold); }
-
-        /* التذييل */
-        footer { background: var(--midnight-darker); padding: 50px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 50px; }
+        footer { background: var(--midnight-navy); padding: 60px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
         .footer-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white); margin-bottom: 20px; }
-        .footer-credit { font-size: 0.7rem; color: rgba(255,255,255,0.2); letter-spacing: 4px; text-transform: uppercase; }
+        .footer-credit { font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 4px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="bg-grid"></div>
-    <div class="global-watermark">
-        <img src="./Assets/n-mark.png" alt="NEXORA Watermark">
-    </div>
+    
+    <svg class="svg-watermark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="10,20 40,40 40,80 10,80" fill="#FFFFFF" />
+        <polygon points="35,45 65,60 65,70 35,55" fill="#FFFFFF" />
+        <polygon points="60,50 90,70 90,80 60,60" fill="#FFFFFF" />
+        <polygon points="60,20 90,20 90,65 60,45" fill="#C8A96A" />
+    </svg>
 
     <nav class="navbar">
         <a href="#" class="brand-logo">
-            <img src="./Assets/n-mark.png" alt="NEXORA">
+            <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="10,20 40,40 40,80 10,80" fill="#FFFFFF" />
+                <polygon points="35,45 65,60 65,70 35,55" fill="#FFFFFF" />
+                <polygon points="60,50 90,70 90,80 60,60" fill="#FFFFFF" />
+                <polygon points="60,20 90,20 90,65 60,45" fill="#C8A96A" />
+            </svg>
             NEXOR&Lambda;
         </a>
         <div class="nav-links">
             <a href="#home">Home</a>
             <a href="#about">Who We Are</a>
-            <a href="#pricing">Services & Pricing</a>
+            <a href="#services">Services</a>
             <a href="login.html" class="client-portal-btn">Client Portal</a>
         </div>
     </nav>
 
     <section id="home" class="hero">
-        <h1>Engineering Premium <span>Brand Communication</span></h1>
+        <h1>Engineering Premium<br><span>Brand Communication</span></h1>
         <p>We build intelligent content systems that combine strategy, creativity, and advanced technology to help ambitious brands communicate with clarity, consistency, and impact.</p>
         <a href="#about" class="hero-cta">Discover NEXORA</a>
     </section>
@@ -166,56 +154,9 @@
         </div>
     </section>
 
-    <section id="pricing">
-        <div class="section-header">
-            <h2 class="section-title">System <span>Plans</span></h2>
-            <div class="section-subtitle">Scalable solutions built to grow with your ambition</div>
-        </div>
-        <div class="pricing-grid">
-            
-            <div class="price-card">
-                <div class="plan-name">ESSENTIAL</div>
-                <div class="plan-price">Starter</div>
-                <ul class="plan-features">
-                    <li>Visual Identity System</li>
-                    <li>Basic Content Engineering</li>
-                    <li>Standard Delivery Time</li>
-                    <li>Client Portal Access</li>
-                </ul>
-                <a href="mailto:hello@nexora.com" class="plan-btn">Contact Us</a>
-            </div>
-
-            <div class="price-card premium">
-                <div class="plan-name">PRO SYSTEM</div>
-                <div class="plan-price">Premium</div>
-                <ul class="plan-features">
-                    <li>Advanced Brand Strategy</li>
-                    <li>AI Content Automation</li>
-                    <li>Priority Delivery Workflow</li>
-                    <li>Secure Client Dashboard</li>
-                    <li>Live Feedback Integration</li>
-                </ul>
-                <a href="mailto:hello@nexora.com" class="plan-btn">Start Project</a>
-            </div>
-
-            <div class="price-card">
-                <div class="plan-name">ENTERPRISE</div>
-                <div class="plan-price">Custom</div>
-                <ul class="plan-features">
-                    <li>Full End-to-End Solutions</li>
-                    <li>Dedicated Engineering Team</li>
-                    <li>Custom AI Model Training</li>
-                    <li>Master Control Panel</li>
-                </ul>
-                <a href="mailto:hello@nexora.com" class="plan-btn">Contact Sales</a>
-            </div>
-
-        </div>
-    </section>
-
     <footer>
         <div class="footer-logo">NEXOR&Lambda;</div>
-        <div class="footer-credit">SYSTEM ARCHITECTURE & ENGINEERING BY MOHAMED FAYEZ</div>
+        <div class="footer-credit">SYSTEM ARCHITECTURE BY MOHAMED FAYEZ</div>
     </footer>
 
 </body>
