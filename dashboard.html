@@ -890,7 +890,7 @@
             }
         }
 
-        window.openFeedbackModal = function(fileId, fileName) {
+     window.openFeedbackModal = function(fileId, fileName) {
             currentFileId = fileId;
             document.getElementById('modalFileName').textContent = fileName.toUpperCase();
             document.getElementById('feedbackModal').style.display = 'flex';
@@ -908,15 +908,17 @@
                 }
 
                 const comments = [];
-                snapshot.forEach((doc) => comments.push(doc.data()));
-                comments.sort((a, b) => {
-                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
-                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
-                    return timeA - timeB;
-                });
+                snapshot.forEach((doc) => comments.push({ id: doc.id, ...doc.data() }));
+                comments.sort((a, b) => (a.timestamp?.toMillis() || 0) - (b.timestamp?.toMillis() || 0));
 
                 comments.forEach((data) => {
                     const date = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Just now';
+                    
+                    // زر الحذف للأدمن فقط
+                    const deleteBtn = currentUserEmail === 'mfayez@nexora.com' 
+                        ? `<button onclick="deleteComment('${data.id}')" style="background:none; border:none; color:#EF4444; cursor:pointer; font-size:0.7rem;">DELETE</button>` 
+                        : '';
+
                     commentsList.innerHTML += `
                         <div class="comment-item">
                             <div class="comment-meta">
@@ -924,12 +926,11 @@
                                 <span>${date}</span>
                             </div>
                             <div class="comment-text">${data.text}</div>
+                            <div style="margin-top: 5px; text-align: right;">${deleteBtn}</div>
                         </div>
                     `;
                 });
                 commentsList.scrollTop = commentsList.scrollHeight;
-            }, (error) => {
-                commentsList.innerHTML = '<div style="color:#ef4444;">Error loading comments: ' + error.message + '</div>';
             });
         }
 
@@ -1031,6 +1032,15 @@
     console.log(`SENDING NOTIFICATION TO ${clientEmail}: ${message}`);
     // سيتم تنفيذ الربط عبر Cloud Messaging API لاحقاً
 }
+        window.deleteComment = async function(commentId) {
+            if(!confirm("DELETE THIS FEEDBACK PERMANENTLY?")) return;
+            try {
+                await deleteDoc(doc(db, "asset_comments", commentId));
+                // سيتم تحديث النافذة تلقائياً بفضل onSnapshot
+            } catch(e) {
+                alert("FAILED TO DELETE COMMENT.");
+            }
+        }
     </script>
 </body>
 </html>
