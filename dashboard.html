@@ -86,9 +86,118 @@
         .folder-icon { width: 35px; height: 35px; fill: var(--luxury-gold); flex-shrink: 0; }
         .folder-name { font-size: 0.95rem; font-weight: 500; letter-spacing: 1px; color: var(--pure-white); overflow: hidden; text-overflow: ellipsis; }
 
-        .assets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .asset-card { background: var(--midnight-navy); border: 1px solid rgba(255, 255, 255, 0.05); overflow: hidden; display: flex; flex-direction: column; transition: var(--transition); border-radius: 6px; }
-        .asset-card:active { transform: scale(0.98); }
+/* ========================================= */
+        /* PORTFOLIO & CV ENGINE STYLES              */
+        /* ========================================= */
+        
+        .masonry-grid {
+            column-count: 3;
+            column-gap: 20px;
+            width: 100%;
+        }
+
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            background: var(--midnight-navy);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .masonry-item:hover { border-color: var(--luxury-gold); }
+        .masonry-item:active { transform: scale(0.98); }
+
+        .media-viewport { width: 100%; background: #000; position: relative; }
+        .media-viewport.vertical { aspect-ratio: 9 / 16; }
+        .media-viewport.horizontal { aspect-ratio: auto; }
+        
+        .media-viewport img, .media-viewport video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            display: block;
+            border: none;
+        }
+
+        .feedback-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--revision-red);
+            color: var(--pure-white);
+            font-size: 0.75rem;
+            font-weight: 700;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            border: 2px solid var(--midnight-navy);
+        }
+
+        .performance-tag {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(8, 12, 22, 0.85);
+            color: var(--luxury-gold);
+            padding: 6px 12px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-radius: 4px;
+            border: 1px solid rgba(200, 169, 106, 0.3);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            text-transform: uppercase;
+        }
+
+        .asset-footer { padding: 15px; background: rgba(8, 12, 22, 0.8); border-top: 1px solid rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 10px; }
+        .asset-name { font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 1px; margin-bottom: 5px; }
+        
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 12px 10px; font-family: inherit; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: var(--transition); border: 1px solid transparent; text-transform: uppercase; text-align: center; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .btn-showcase { background: transparent; color: var(--luxury-gold); border-color: var(--luxury-gold); }
+        .btn-showcase:hover { background: var(--luxury-gold); color: var(--midnight-darker); }
+        .btn-full { background: var(--luxury-gold); color: var(--midnight-darker); }
+        .btn-full:hover { background: var(--pure-white); }
+
+        .back-btn { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 25px; background: transparent; color: rgba(255,255,255,0.6); border: none; font-family: inherit; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: var(--transition); text-transform: uppercase; }
+        .back-btn:hover { color: var(--luxury-gold); }
+        .system-loader { text-align: center; padding: 50px; color: rgba(255,255,255,0.3); letter-spacing: 3px; font-size: 0.85rem; text-transform: uppercase; }
+        .footer-credit { text-align: center; padding: 20px; font-size: 0.65rem; color: rgba(255,255,255,0.15); letter-spacing: 3px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto; }
+
+        /* Feedback & Viewer Modals */
+        .feedback-modal { display: none; position: fixed; inset: 0; background: rgba(8, 12, 22, 0.95); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 20px; }
+        .modal-container { background: var(--midnight-navy); width: 100%; max-width: 550px; border: 1px solid var(--luxury-gold); display: flex; flex-direction: column; max-height: 85vh; border-radius: 8px; overflow: hidden; }
+        .modal-header { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 1rem; color: var(--luxury-gold); font-weight: 700; letter-spacing: 1px; }
+        .close-modal { color: var(--pure-white); cursor: pointer; font-size: 1.4rem; line-height: 1; }
+        .comments-list { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; }
+        .comment-item { background: rgba(255,255,255,0.03); padding: 15px; border-left: 3px solid var(--luxury-gold); border-radius: 0 6px 6px 0; }
+        .comment-meta { display: flex; justify-content: space-between; font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+        .comment-text { font-size: 0.85rem; color: var(--pure-white); line-height: 1.5; }
+        .comment-input-area { padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 10px; }
+        .comment-input-area textarea { width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--pure-white); font-family: inherit; font-size: 0.85rem; resize: none; height: 70px; outline: none; border-radius: 4px; }
+        .comment-input-area textarea:focus { border-color: var(--luxury-gold); }
+
+        .media-viewer-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.98); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .viewer-content { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .viewer-content img, .viewer-content iframe { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .close-viewer { position: absolute; top: 20px; right: 20px; color: var(--pure-white); font-size: 2rem; cursor: pointer; z-index: 2010; background: rgba(255,255,255,0.1); width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+
+        @media (max-width: 1024px) { .masonry-grid { column-count: 2; } }
+        @media (max-width: 768px) { 
+            .masonry-grid { column-count: 1; } 
+            .media-viewport.vertical { max-height: 70vh; }
+        }
         .media-viewport { width: 100%; height: 240px; background: #000; position: relative; }
         .media-viewport img, .media-viewport iframe { width: 100%; height: 100%; object-fit: cover; border: none; }
         .asset-footer { padding: 15px; background: rgba(8, 12, 22, 0.8); border-top: 1px solid rgba(255,255,255,0.02); display: flex; flex-direction: column; gap: 10px; }
@@ -163,13 +272,10 @@
             .admin-input, .admin-select, .admin-btn { 
                 width: 100%; 
             }
-            .folders-grid, .assets-grid { 
+            .folders-grid, { 
                 grid-template-columns: 1fr; 
             }
-            .media-viewport { 
-                height: auto; 
-                aspect-ratio: 16/9; 
-            }
+           
             .modal-container { 
                 width: 95%; 
             }
@@ -261,7 +367,7 @@
                 <div class="section-desc">Selected Premium Executions</div>
             </div>
             <div id="globalShowcaseLoader" class="system-loader">LOADING SHOWCASE ASSETS...</div>
-            <div class="assets-grid" id="globalShowcaseGrid"></div>
+           <div class="masonry-grid" id="globalShowcaseGrid"></div>
         </div>
 
         <div id="projectView" class="view-section">
@@ -281,7 +387,7 @@
                 <div class="section-desc">SECURE ENVIRONMENT</div>
             </div>
             <div id="projectFilesLoader" class="system-loader">LOADING PROJECT ASSETS...</div>
-            <div class="assets-grid" id="projectFilesGrid"></div>
+           <div class="masonry-grid" id="projectFilesGrid"></div>
         </div>
 
     </main>
@@ -534,55 +640,6 @@
             }
         }
 
-       function renderAssetsGrid(files) {
-            const grid = document.getElementById('projectFilesGrid');
-            if(!files || files.length === 0) {
-                grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px;">NO ASSETS FOUND IN THIS PROJECT.</div>';
-                return;
-            }
-
-            files.forEach(file => {
-                const isVideo = file.mimeType.includes('video');
-                let highResImage = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+/, '=s1000') : '';
-                const previewUrl = isVideo ? `https://drive.google.com/file/d/${file.id}/preview` : highResImage;
-                const cleanName = file.name.split('.').slice(0, -1).join('.') || file.name;
-
-              const isVideoStr = isVideo ? 'true' : 'false';
-                const mediaMarkup = isVideo 
-                    ? `<div style="position:relative; width:100%; height:100%; cursor:pointer;" onclick="openMediaViewer('${previewUrl}', '${isVideoStr}')">
-                         <iframe src="${previewUrl}" loading="lazy" style="pointer-events:none; width:100%; height:100%; border:none;"></iframe>
-                         <div style="position:absolute; inset:0; z-index:10;"></div>
-                       </div>`
-                    : `<img src="${previewUrl}" loading="lazy" alt="${cleanName}" style="cursor:pointer; width:100%; height:100%; object-fit:cover;" onclick="openMediaViewer('${previewUrl}', '${isVideoStr}')">`;
-                const card = document.createElement('div');
-                card.className = 'asset-card';
-                // بدلاً من رابط الـ Preview، استخدم هذا الرابط للتحميل المباشر
-const downloadUrl = `https://docs.google.com/uc?export=download&id=${file.id}`;
-
-// أضف هذا الزر بجانب زر "VIEW FEEDBACK"
-const downloadBtn = `<a href="${downloadUrl}" class="btn btn-full" style="margin-top:5px; background:var(--luxury-gold); color:#000; text-decoration:none; display:block; text-align:center;">DOWNLOAD ORIGINAL</a>`;
-                let adminControlsHtml = '';
-                if(currentUserEmail === 'mfayez@nexora.com') {
-                    adminControlsHtml = `
-                        <button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')" style="width:100%; margin-top:10px;">TOGGLE SHOWCASE</button>
-                        <button class="btn" onclick="deleteAsset('${file.id}')" style="width:100%; margin-top:10px; background: rgba(239, 68, 68, 0.1); color: var(--revision-red); border: 1px solid rgba(239, 68, 68, 0.3);">DELETE ASSET</button>
-                    `;
-                }
-
-               card.innerHTML = `
-                    <div class="media-viewport">${mediaMarkup}</div>
-                    <div class="asset-footer">
-                        <div class="asset-name">${cleanName}</div>
-                        <div class="action-grid">
-                            <button class="btn btn-full" onclick="openFeedbackModal('${file.id}', '${cleanName}')">VIEW FEEDBACK</button>
-                            <a href="https://docs.google.com/uc?export=download&id=${file.id}" target="_blank" class="btn btn-full" style="text-decoration:none; display:block; text-align:center;">DOWNLOAD</a>
-                        </div>
-                        ${adminControlsHtml}
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
 
         window.executeUpload = async function() {
             if (!driveAccessToken) {
@@ -644,6 +701,63 @@ const downloadBtn = `<a href="${downloadUrl}" class="btn btn-full" style="margin
             }
         }
 
+     function renderAssetsGrid(files) {
+            const grid = document.getElementById('projectFilesGrid');
+            if(!files || files.length === 0) {
+                grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px; break-inside: avoid;">NO ASSETS FOUND IN THIS PROJECT.</div>';
+                return;
+            }
+
+            files.forEach(file => {
+                const isVideo = file.mimeType.includes('video');
+                let highResImage = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+/, '=s1000') : '';
+                const directUrl = `https://docs.google.com/uc?export=download&id=${file.id}`;
+                const previewUrl = isVideo ? directUrl : highResImage;
+                const cleanName = file.name.split('.').slice(0, -1).join('.') || file.name;
+
+                const isVideoStr = isVideo ? 'true' : 'false';
+                const formatClass = isVideo ? 'vertical' : 'horizontal';
+                
+                // بيانات تجارية وهمية للبورتفليو
+                const perfTag = isVideo ? '98% RETENTION RATE' : 'CLICK-THROUGH: 8.5%';
+                const feedbackCount = Math.floor(Math.random() * 4); // من 0 إلى 3
+
+                const mediaMarkup = isVideo 
+                    ? `<video src="${previewUrl}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" onclick="openMediaViewer('${previewUrl}', 'true')"></video>`
+                    : `<img src="${previewUrl}" loading="lazy" alt="${cleanName}" onclick="openMediaViewer('${previewUrl}', 'false')">`;
+                
+                const card = document.createElement('div');
+                card.className = 'masonry-item';
+                
+                const downloadUrl = `https://docs.google.com/uc?export=download&id=${file.id}`;
+
+                let adminControlsHtml = '';
+                if(currentUserEmail === 'mfayez@nexora.com') {
+                    adminControlsHtml = `
+                        <button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')" style="width:100%; margin-top:10px;">TOGGLE SHOWCASE</button>
+                        <button class="btn" onclick="deleteAsset('${file.id}')" style="width:100%; margin-top:10px; background: rgba(239, 68, 68, 0.1); color: var(--revision-red); border: 1px solid rgba(239, 68, 68, 0.3);">DELETE ASSET</button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    ${feedbackCount > 0 ? `<div class="feedback-badge">${feedbackCount}</div>` : ''}
+                    <div class="media-viewport ${formatClass}">
+                        ${mediaMarkup}
+                        <div class="performance-tag">${perfTag}</div>
+                    </div>
+                    <div class="asset-footer">
+                        <div class="asset-name">${cleanName}</div>
+                        <div class="action-grid">
+                            <button class="btn btn-full" onclick="openFeedbackModal('${file.id}', '${cleanName}')">VIEW FEEDBACK</button>
+                            <a href="${downloadUrl}" target="_blank" class="btn btn-full" style="text-decoration:none; display:block; text-align:center;">DOWNLOAD</a>
+                        </div>
+                        ${adminControlsHtml}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
         function loadGlobalShowcase() {
             const showcaseRef = collection(db, "global_showcase");
             const loader = document.getElementById('globalShowcaseLoader');
@@ -653,22 +767,31 @@ const downloadBtn = `<a href="${downloadUrl}" class="btn btn-full" style="margin
                 grid.innerHTML = '';
                 if(loader) loader.style.display = 'none';
                 if(snapshot.empty) {
-                    grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px; grid-column:1/-1;">NO SELECTED SHOWCASE ASSETS.</div>';
+                    grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px; break-inside: avoid;">NO SELECTED SHOWCASE ASSETS.</div>';
                     return;
                 }
 
                 snapshot.forEach((doc) => {
                     const data = doc.data();
                     const isVideo = data.mimeType.includes('video');
-                    const previewUrl = isVideo ? `https://drive.google.com/file/d/${doc.id}/preview` : data.thumbnail;
+                    const directUrl = `https://docs.google.com/uc?export=download&id=${doc.id}`;
+                    const previewUrl = isVideo ? directUrl : data.thumbnail;
+                    
+                    const formatClass = isVideo ? 'vertical' : 'horizontal';
+                    const perfTag = isVideo ? '1.2M VIEWS | HIGH RETENTION' : 'CPA: -$2.40 | CONVERSION: +14%';
+                    const feedbackCount = Math.floor(Math.random() * 4);
 
                     const mediaMarkup = isVideo 
-                        ? `<iframe src="${previewUrl}" loading="lazy"></iframe>`
-                        : `<img src="${previewUrl}" loading="lazy" alt="${data.name}">`;
+                        ? `<video src="${previewUrl}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" onclick="openMediaViewer('${previewUrl}', 'true')"></video>`
+                        : `<img src="${previewUrl}" loading="lazy" alt="${data.name}" onclick="openMediaViewer('${previewUrl}', 'false')">`;
 
                     grid.innerHTML += `
-                        <div class="asset-card">
-                            <div class="media-viewport">${mediaMarkup}</div>
+                        <div class="masonry-item">
+                            ${feedbackCount > 0 ? `<div class="feedback-badge">${feedbackCount}</div>` : ''}
+                            <div class="media-viewport ${formatClass}">
+                                ${mediaMarkup}
+                                <div class="performance-tag">${perfTag}</div>
+                            </div>
                             <div class="asset-footer">
                                 <div class="asset-name">${data.name}</div>
                             </div>
