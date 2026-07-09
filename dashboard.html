@@ -280,6 +280,22 @@
                 width: 95%; 
             }
         }
+        /* ========================================= */
+        /* CAROUSEL ENGINE (INSTAGRAM STYLE)         */
+        /* ========================================= */
+        .carousel-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+        .carousel-slide.active-slide { opacity: 1; pointer-events: auto; }
+        
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(5,5,5,0.6); color: var(--prestige-gold); border: 1px solid var(--prestige-gold); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-weight: bold; transition: var(--transition); user-select: none; }
+        .carousel-btn:hover { background: var(--prestige-gold); color: var(--void-black); }
+        .carousel-btn.prev { left: 10px; }
+        .carousel-btn.next { right: 10px; }
+        
+        .carousel-dots { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: center; gap: 6px; z-index: 10; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: var(--transition); }
+        .dot.active { background: var(--prestige-gold); transform: scale(1.2); }
+        
+        .version-badge { position: absolute; top: 15px; left: 15px; background: rgba(8,12,22,0.85); color: var(--precision-white); padding: 4px 8px; font-size: 0.6rem; font-weight: 700; border-radius: 2px; border: 1px solid rgba(255,255,255,0.2); z-index: 10; backdrop-filter: blur(5px); letter-spacing: 1px; }
     </style>
     <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -701,7 +717,7 @@
             }
         }
 
-    async function renderAssetsGrid(files) {
+  async function renderAssetsGrid(files) {
             const grid = document.getElementById('projectFilesGrid');
             grid.innerHTML = '';
             
@@ -710,50 +726,88 @@
                 return;
             }
 
-            // استخدام Promise.all لعد الكومنتات لكل ملف قبل عرضه
-            const assetsPromises = files.map(async (file) => {
+            // خوارزمية التجميع بناءً على الاسم (تزيل -v1 أو (1) لمعرفة الاسم الأصلي)
+            const groups = {};
+            files.forEach(file => {
+                let nameNoExt = file.name.split('.').slice(0, -1).join('.') || file.name;
+                let baseName = nameNoExt.replace(/ \(\d+\)$/, '').replace(/[-_ ]*v\d+$/i, '').trim().toUpperCase();
+                
+                if (!groups[baseName]) groups[baseName] = [];
+                groups[baseName].push(file); // الملفات مرتبة من الأحدث للأقدم تلقائياً
+            });
+
+            const groupNames = Object.keys(groups);
+            const assetsPromises = groupNames.map(async (baseName) => {
+                const groupFiles = groups[baseName];
+                const latestFile = groupFiles[0]; 
+                const safeGroupId = baseName.replace(/[^a-zA-Z0-9]/g, ''); // إنشاء ID آمن خالي من المسافات
+                
                 const commentsRef = collection(db, "asset_comments");
-                const q = query(commentsRef, where("fileId", "==", file.id));
-                // جلب عدد التعليقات الحقيقي
+                const q = query(commentsRef, where("fileId", "==", latestFile.id));
                 const snapshot = await getDocs(q); 
                 const count = snapshot.size;
 
-                const isVideo = file.mimeType.includes('video');
-                let highResImage = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+/, '=s1000') : '';
-                const directUrl = `https://docs.google.com/uc?export=download&id=${file.id}`;
-                const previewUrl = isVideo ? directUrl : highResImage;
-                const cleanName = file.name.split('.').slice(0, -1).join('.') || file.name;
-
-                const isVideoStr = isVideo ? 'true' : 'false';
+                const isVideo = latestFile.mimeType.includes('video');
                 const formatClass = isVideo ? 'vertical' : 'horizontal';
                 const perfTag = isVideo ? '98% RETENTION RATE' : 'CLICK-THROUGH: 8.5%';
-
-                const mediaMarkup = isVideo 
-                    ? `<video src="${previewUrl}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" onclick="openMediaViewer('${previewUrl}', 'true')"></video>`
-                    : `<img src="${previewUrl}" loading="lazy" alt="${cleanName}" onclick="openMediaViewer('${previewUrl}', 'false')">`;
                 
+                let slidesHtml = '';
+                let dotsHtml = '';
+                
+                groupFiles.forEach((file, idx) => {
+                    let highResImage = file.thumbnailLink ? file.thumbnailLink.replace(/=s\d+/, '=s1000') : '';
+                    const directUrl = `https://docs.google.com/uc?export=download&id=${file.id}`;
+                    const previewUrl = file.mimeType.includes('video') ? directUrl : highResImage;
+                    const versionLabel = groupFiles.length > 1 ? (idx === 0 ? 'LATEST' : `V${groupFiles.length - idx}`) : ''; 
+                    
+                    const mediaMarkup = file.mimeType.includes('video') 
+                        ? `<video src="${previewUrl}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()" onclick="openMediaViewer('${previewUrl}', 'true')"></video>`
+                        : `<img src="${previewUrl}" loading="lazy" alt="${baseName}" onclick="openMediaViewer('${previewUrl}', 'false')">`;
+                    
+                    slidesHtml += `
+                        <div class="carousel-slide ${idx === 0 ? 'active-slide' : ''}">
+                            ${versionLabel ? `<div class="version-badge">${versionLabel}</div>` : ''}
+                            ${mediaMarkup}
+                        </div>
+                    `;
+                    
+                    if (groupFiles.length > 1) {
+                        dotsHtml += `<div class="dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide('${safeGroupId}', ${idx})"></div>`;
+                    }
+                });
+
+                let controlsHtml = '';
+                if (groupFiles.length > 1) {
+                    controlsHtml = `
+                        <div class="carousel-btn prev" onclick="moveSlide('${safeGroupId}', -1)">&#10094;</div>
+                        <div class="carousel-btn next" onclick="moveSlide('${safeGroupId}', 1)">&#10095;</div>
+                        <div class="carousel-dots" id="dots-${safeGroupId}">${dotsHtml}</div>
+                    `;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'masonry-item';
                 
                 let adminControlsHtml = '';
                 if(currentUserEmail === 'mfayez@nexora.com') {
                     adminControlsHtml = `
-                        <button class="btn btn-showcase" onclick="toggleGlobalShowcase('${file.id}', '${cleanName}', '${file.mimeType}', '${highResImage}')" style="width:100%; margin-top:10px;">TOGGLE SHOWCASE</button>
-                        <button class="btn" onclick="deleteAsset('${file.id}')" style="width:100%; margin-top:10px; background: rgba(239, 68, 68, 0.1); color: var(--revision-red); border: 1px solid rgba(239, 68, 68, 0.3);">DELETE ASSET</button>
+                        <button class="btn btn-showcase" onclick="toggleGlobalShowcase('${latestFile.id}', '${baseName}', '${latestFile.mimeType}', '${latestFile.thumbnailLink}')" style="width:100%; margin-top:10px;">TOGGLE SHOWCASE</button>
+                        <button class="btn" onclick="deleteAsset('${latestFile.id}')" style="width:100%; margin-top:10px; background: rgba(239, 68, 68, 0.1); color: var(--revision-red); border: 1px solid rgba(239, 68, 68, 0.3);">DELETE LATEST</button>
                     `;
                 }
 
                 card.innerHTML = `
                     ${count > 0 ? `<div class="feedback-badge">${count}</div>` : ''}
-                    <div class="media-viewport ${formatClass}">
-                        ${mediaMarkup}
+                    <div class="media-viewport ${formatClass}" id="carousel-${safeGroupId}" data-current="0" data-total="${groupFiles.length}">
+                        ${slidesHtml}
+                        ${controlsHtml}
                         <div class="performance-tag">${perfTag}</div>
                     </div>
                     <div class="asset-footer">
-                        <div class="asset-name">${cleanName}</div>
+                        <div class="asset-name">${baseName}</div>
                         <div class="action-grid">
-                            <button class="btn btn-full" onclick="openFeedbackModal('${file.id}', '${cleanName}')">VIEW FEEDBACK</button>
-                            <a href="${directUrl}" target="_blank" class="btn btn-full" style="text-decoration:none; display:block; text-align:center;">DOWNLOAD</a>
+                            <button class="btn btn-full" onclick="openFeedbackModal('${latestFile.id}', '${baseName}')">VIEW FEEDBACK</button>
+                            <a href="https://docs.google.com/uc?export=download&id=${latestFile.id}" target="_blank" class="btn btn-full" style="text-decoration:none; display:block; text-align:center;">DOWNLOAD LATEST</a>
                         </div>
                         ${adminControlsHtml}
                     </div>
@@ -762,7 +816,6 @@
             });
             await Promise.all(assetsPromises);
         }
-
         function loadGlobalShowcase() {
             const showcaseRef = collection(db, "global_showcase");
             const loader = document.getElementById('globalShowcaseLoader');
