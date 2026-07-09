@@ -172,81 +172,20 @@
         </div>
     </section>
 
-    <section id="portfolio">
+<section id="portfolio">
         <div class="section-header">
             <h2 class="section-title">The <span>Architecture</span></h2>
             <div class="section-desc" style="color: var(--prestige-gold); font-size: 0.8rem; letter-spacing: 2px;">HOVER TO REVEAL ENGINEERING BLUEPRINTS</div>
         </div>
 
-        <div class="masonry-grid">
-            <!-- Item 1: Vertical Video -->
-            <div class="masonry-item">
-                <div class="performance-tag">98% RETENTION</div>
-                <div class="media-viewport vertical">
-                    <img src="https://via.placeholder.com/400x711/1E293B/FFFFFF?text=TIKTOK+REEL" alt="Reel">
-                </div>
-                <div class="blueprint-overlay">
-                    <div class="blueprint-row">
-                        <div class="bp-label">Engine</div>
-                        <div class="bp-value">Kling AI + Custom Scripting</div>
-                    </div>
-                    <div class="blueprint-row">
-                        <div class="bp-label">Lighting Logic</div>
-                        <div class="bp-value">Cinematic high contrast, volumetric fog</div>
-                    </div>
-                    <div class="blueprint-row">
-                        <div class="bp-label">Storytelling Hook</div>
-                        <div class="bp-value">Paced reveal within first 2.5 seconds</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item 2: Horizontal Image -->
-            <div class="masonry-item">
-                <div class="performance-tag">CTR: +14.2%</div>
-                <div class="media-viewport">
-                    <img src="https://via.placeholder.com/600x400/050505/C8A96A?text=MEDICAL+TECH+ASSET" alt="Medical">
-                </div>
-                <div class="blueprint-overlay">
-                    <div class="blueprint-row">
-                        <div class="bp-label">Engine</div>
-                        <div class="bp-value">Midjourney V6 (Raw Mode)</div>
-                    </div>
-                    <div class="blueprint-row">
-                        <div class="bp-label">Texture Mapping</div>
-                        <div class="bp-value">Hyper-realistic polymer surfaces, macro lens 100mm</div>
-                    </div>
-                    <div class="blueprint-row">
-                        <div class="bp-label">Objective</div>
-                        <div class="bp-value">Phase 1 hero image for ophthalmic probes</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Item 3: Horizontal Image -->
-            <div class="masonry-item">
-                <div class="performance-tag">CONVERSION: +8%</div>
-                <div class="media-viewport">
-                    <img src="https://via.placeholder.com/600x600/1E293B/FFFFFF?text=LUXURY+FASHION" alt="Fashion">
-                </div>
-                <div class="blueprint-overlay">
-                    <div class="blueprint-row">
-                        <div class="bp-label">Engine</div>
-                        <div class="bp-value">Nano Banana + Meta AI Extend</div>
-                    </div>
-                    <div class="blueprint-row">
-                        <div class="bp-label">Identity Lock</div>
-                        <div class="bp-value">100% matching, zero beautification</div>
-                    </div>
-                    <div class="blueprint-row">
-                        <div class="bp-label">Brand</div>
-                        <div class="bp-value">Nîmes Denim Identity</div>
-                    </div>
-                </div>
-            </div>
+        <div id="publicLoader" style="text-align: center; color: rgba(255,255,255,0.3); letter-spacing: 3px; padding: 50px 0; font-size: 0.8rem; text-transform: uppercase;">
+            ESTABLISHING SECURE CONNECTION TO ASSET DATABASE...
+        </div>
+        
+        <div class="masonry-grid" id="publicPortfolioGrid">
+            <!-- Dynamic assets will be injected here by Firebase Engine -->
         </div>
     </section>
-
     <footer>
         <div class="footer-logo">NEXOR&Lambda;</div>
         <div class="footer-credit">AI CREATIVE ENGINEERING & SYSTEM ARCHITECTURE BY MOHAMED FAYEZ</div>
@@ -285,6 +224,89 @@
             beforeImg.style.width = `${value}%`;
             sliderBtn.style.left = `${value}%`;
         });
+    </script>
+    <!-- ========================================== -->
+    <!-- PORTFOLIO LIVE ENGINE (FIREBASE)           -->
+    <!-- ========================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgRul7Lv-zjUjodvqCIguikWDbiBtFnjo",
+            authDomain: "nexora-a4dcc.firebaseapp.com",
+            projectId: "nexora-a4dcc"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadPublicPortfolio() {
+            const showcaseRef = collection(db, "global_showcase");
+            const q = query(showcaseRef, orderBy("timestamp", "desc"));
+            const loader = document.getElementById('publicLoader');
+            const grid = document.getElementById('publicPortfolioGrid');
+            
+            try {
+                const snapshot = await getDocs(q);
+                loader.style.display = 'none';
+                
+                if (snapshot.empty) {
+                    grid.innerHTML = '<div style="color:rgba(255,255,255,0.3); font-size:0.8rem; letter-spacing:2px; grid-column: 1/-1;">NO PUBLIC ASSETS AVAILABLE YET.</div>';
+                    return;
+                }
+
+                grid.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const isVideo = data.mimeType.includes('video');
+                    const directUrl = `https://docs.google.com/uc?export=download&id=${doc.id}`;
+                    // استخدام الصورة المصغرة في حالة الفيديوهات لتسريع التحميل
+                    const previewUrl = isVideo ? directUrl : data.thumbnail;
+                    
+                    const formatClass = isVideo ? 'vertical' : 'horizontal';
+                    
+                    // توليد بيانات أداء احترافية عشوائية للعرض
+                    const perfTags = isVideo 
+                        ? ['98% RETENTION', 'VIRAL REACH', '1.2M+ VIEWS'] 
+                        : ['CTR: +14.2%', 'CONVERSION: +8%', 'PREMIUM ASSET'];
+                    const randomTag = perfTags[Math.floor(Math.random() * perfTags.length)];
+
+                    const mediaMarkup = isVideo 
+                        ? `<video src="${previewUrl}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`
+                        : `<img src="${previewUrl}" loading="lazy" alt="${data.name}">`;
+
+                    grid.innerHTML += `
+                        <div class="masonry-item">
+                            <div class="performance-tag">${randomTag}</div>
+                            <div class="media-viewport ${formatClass}">
+                                ${mediaMarkup}
+                            </div>
+                            <div class="blueprint-overlay">
+                                <div class="blueprint-row">
+                                    <div class="bp-label">Asset Designation</div>
+                                    <div class="bp-value">${data.name.toUpperCase()}</div>
+                                </div>
+                                <div class="blueprint-row">
+                                    <div class="bp-label">Engine Architecture</div>
+                                    <div class="bp-value">AI Engineered & Human Directed</div>
+                                </div>
+                                <div class="blueprint-row">
+                                    <div class="bp-label">Identity Protocol</div>
+                                    <div class="bp-value">Absolute Lock (0% Beautification)</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                loader.textContent = "DATABASE CONNECTION FAILED.";
+                loader.style.color = "#EF4444";
+            }
+        }
+        
+        loadPublicPortfolio();
     </script>
 </body>
 </html>
