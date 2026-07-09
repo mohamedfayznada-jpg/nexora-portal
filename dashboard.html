@@ -614,7 +614,7 @@
             });
         }
 
-        window.openProjectSpace = async function(folderId, folderName) {
+      window.openProjectSpace = async function(folderId, folderName) {
             currentOpenFolderId = folderId;
             currentOpenFolderName = folderName;
 
@@ -624,7 +624,9 @@
             document.getElementById('projectNameTitle').innerHTML = `${folderName} <span>Assets</span>`;
             
             const queryParam = encodeURIComponent(`'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`);
-            const url = `https://www.googleapis.com/drive/v3/files?q=${queryParam}&fields=files(id,name,mimeType,thumbnailLink)&key=${GOOGLE_API_KEY}`;
+            
+            // حقن معامل الترتيب createdTime desc لضمان عرض الأحدث أولاً
+            const url = `https://www.googleapis.com/drive/v3/files?q=${queryParam}&orderBy=createdTime desc&fields=files(id,name,mimeType,thumbnailLink)&key=${GOOGLE_API_KEY}`;
             
             document.getElementById('projectFilesLoader').style.display = 'block';
             document.getElementById('projectFilesGrid').innerHTML = '';
@@ -638,7 +640,6 @@
                 document.getElementById('projectFilesLoader').textContent = "ERROR FETCHING ASSETS.";
             }
         }
-
 
         window.executeUpload = async function() {
             if (!driveAccessToken) {
