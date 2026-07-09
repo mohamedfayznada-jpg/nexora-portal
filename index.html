@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXORA | Premium Brand Communication</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NEXORA | AI Creative Engineering</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --midnight-navy: #0F172A;
-            --midnight-darker: #080C16;
-            --luxury-gold: #C8A96A;
-            --pure-white: #F8FAFC;
+            --void-black: #050505;
+            --prestige-gold: #C8A96A;
+            --digital-slate: #1E293B;
+            --precision-white: #F8FAFC;
+            --deep-emerald: #065F46;
             --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -18,156 +19,116 @@
         html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--midnight-darker);
-            color: var(--pure-white);
+            background-color: var(--void-black);
+            color: var(--precision-white);
             font-family: 'Outfit', sans-serif;
             line-height: 1.6;
             overflow-x: hidden;
-            position: relative;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .bg-grid {
-            position: fixed; inset: 0; z-index: -2;
-            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
+        /* Preloader */
+        #preloader {
+            position: fixed; inset: 0; background: var(--void-black);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.6s ease;
+        }
+        .loader-logo { width: 50px; height: 50px; fill: transparent; stroke: var(--prestige-gold); stroke-width: 2; stroke-dasharray: 300; stroke-dashoffset: 300; animation: drawLogo 2s forwards ease-in-out; }
+        @keyframes drawLogo { to { stroke-dashoffset: 0; fill: var(--prestige-gold); } }
+
+        /* Persistent Signature Seal */
+        .signature-seal {
+            position: fixed; bottom: 20px; left: 20px; z-index: 1000;
+            font-size: 0.6rem; letter-spacing: 4px; color: rgba(200, 169, 106, 0.5);
+            text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg);
+            pointer-events: none; border-left: 1px solid rgba(200, 169, 106, 0.3); padding-left: 5px;
         }
 
-        /* العلامة المائية المدمجة برمجياً لتجنب الانكسار */
-        .svg-watermark {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            height: 110vh; width: auto;
-            opacity: 0.02; z-index: -1;
-            pointer-events: none;
-            filter: grayscale(100%);
-        }
-
+        /* Navbar */
         .navbar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 25px 50px; background: rgba(8, 12, 22, 0.9);
-            border-bottom: 1px solid rgba(200, 169, 106, 0.2);
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-            backdrop-filter: blur(15px);
-        }
-
-        .brand-logo {
-            display: flex; align-items: center; gap: 15px;
-            font-size: 1.8rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white); text-decoration: none;
-        }
-
-        .svg-icon { width: 35px; height: 35px; }
-
-        .nav-links { display: flex; gap: 40px; align-items: center; }
-        .nav-links a {
-            color: var(--pure-white); text-decoration: none; font-size: 0.85rem;
-            letter-spacing: 3px; text-transform: uppercase; transition: var(--transition);
-        }
-        .nav-links a:hover { color: var(--luxury-gold); }
-
-        .client-portal-btn {
-            background: var(--luxury-gold); color: var(--midnight-darker) !important;
-            padding: 12px 30px; font-weight: 700; border-radius: 0; border: 1px solid var(--luxury-gold);
+            padding: 20px 50px; background: rgba(5, 5, 5, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed; top: 0; width: 100%; z-index: 1000; backdrop-filter: blur(10px);
             transition: var(--transition);
         }
-        .client-portal-btn:hover { background: transparent; color: var(--luxury-gold) !important; }
+        .brand-logo { display: flex; align-items: center; gap: 15px; font-size: 1.5rem; font-weight: 700; letter-spacing: 6px; color: var(--precision-white); text-decoration: none; }
+        .svg-icon { width: 30px; height: 30px; }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a { color: var(--precision-white); text-decoration: none; font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; transition: var(--transition); }
+        .nav-links a:hover { color: var(--prestige-gold); }
+        .client-portal-btn { background: var(--prestige-gold); color: var(--void-black) !important; padding: 10px 25px; font-weight: 700; border-radius: 2px; }
+        .client-portal-btn:hover { background: var(--precision-white); }
 
-        section { padding: 150px 50px; max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+        /* Cinematic Hero */
+        .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 0 10%; overflow: hidden; }
+        .hero-video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; opacity: 0.4; filter: contrast(120%) brightness(0.8); }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, var(--void-black) 10%, transparent 100%); z-index: -1; }
+        .hero h1 { font-size: 4.5rem; font-weight: 300; line-height: 1.1; margin-bottom: 20px; letter-spacing: 2px; max-width: 800px; text-transform: uppercase; }
+        .hero h1 span { font-weight: 700; color: var(--prestige-gold); display: block; }
+        .hero p { font-size: 1rem; color: rgba(255,255,255,0.6); max-width: 500px; margin-bottom: 40px; font-weight: 300; letter-spacing: 1px; }
+
+        /* Sections */
+        section { padding: 120px 5%; position: relative; }
+        .section-header { margin-bottom: 50px; border-left: 3px solid var(--prestige-gold); padding-left: 20px; }
+        .section-title { font-size: 2rem; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; }
+        .section-title span { font-weight: 700; color: var(--precision-white); }
+
+        /* Interactive Comparison Zone */
+        .comparison-container { position: relative; width: 100%; max-width: 1000px; height: 600px; margin: 0 auto; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; }
+        .comparison-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .img-after { z-index: 1; }
+        .img-before { z-index: 2; width: 50%; border-right: 2px solid var(--prestige-gold); }
+        .comparison-slider { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; z-index: 3; cursor: ew-resize; }
+        .slider-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: var(--prestige-gold); border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 2; pointer-events: none; }
+
+        /* Portfolio Masonry & Blueprints */
+        .masonry-grid { column-count: 3; column-gap: 20px; width: 100%; }
+        .masonry-item { break-inside: avoid; margin-bottom: 20px; background: var(--digital-slate); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; position: relative; cursor: pointer; }
+        .media-viewport { width: 100%; background: #000; position: relative; }
+        .media-viewport.vertical { aspect-ratio: 9 / 16; }
+        .media-viewport img, .media-viewport video { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        .section-header { text-align: left; margin-bottom: 60px; border-left: 4px solid var(--luxury-gold); padding-left: 20px; }
-        .section-title { font-size: 2.5rem; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; }
-        .section-title span { font-weight: 700; color: var(--pure-white); }
-        .section-subtitle { color: var(--luxury-gold); font-size: 0.9rem; margin-top: 10px; letter-spacing: 3px; text-transform: uppercase; }
-
-        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
-        .hero h1 { font-size: 5rem; font-weight: 300; line-height: 1.1; margin-bottom: 25px; letter-spacing: 2px; }
-        .hero h1 span { font-weight: 700; color: var(--luxury-gold); display: block; }
-        .hero p { font-size: 1.2rem; color: rgba(255,255,255,0.6); max-width: 600px; margin-bottom: 50px; font-weight: 300; line-height: 1.8; }
+        .performance-tag { position: absolute; top: 15px; right: 15px; background: var(--deep-emerald); color: var(--precision-white); padding: 5px 10px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; border-radius: 2px; z-index: 10; }
         
-        .hero-cta { display: inline-block; padding: 18px 45px; background: transparent; border: 1px solid var(--luxury-gold); color: var(--luxury-gold); text-decoration: none; font-size: 0.9rem; letter-spacing: 4px; text-transform: uppercase; transition: var(--transition); font-weight: 700; }
-        .hero-cta:hover { background: var(--luxury-gold); color: var(--midnight-darker); }
+        .blueprint-overlay { position: absolute; inset: 0; background: rgba(5, 5, 5, 0.95); padding: 20px; display: flex; flex-direction: column; justify-content: center; opacity: 0; transition: var(--transition); z-index: 5; }
+        .masonry-item:hover .blueprint-overlay { opacity: 1; }
+        .blueprint-row { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .bp-label { font-size: 0.6rem; color: var(--prestige-gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
+        .bp-value { font-size: 0.8rem; color: var(--precision-white); }
 
-        .about-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-        .feature-card { background: rgba(15, 23, 42, 0.6); padding: 50px 40px; border-top: 2px solid var(--luxury-gold); border-bottom: 1px solid rgba(255,255,255,0.05); transition: var(--transition); backdrop-filter: blur(10px); }
-        .feature-card:hover { transform: translateY(-5px); background: rgba(200, 169, 106, 0.05); border-color: var(--pure-white); }
-        .feature-card h3 { font-size: 1.5rem; color: var(--pure-white); margin-bottom: 20px; letter-spacing: 2px; font-weight: 400; }
-        .feature-card p { color: rgba(255,255,255,0.5); font-size: 0.95rem; font-weight: 300; line-height: 1.8; }
+        footer { background: #020202; padding: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-logo { font-size: 1.2rem; font-weight: 700; letter-spacing: 6px; color: var(--precision-white); margin-bottom: 10px; }
+        .footer-credit { font-size: 0.65rem; color: rgba(255,255,255,0.3); letter-spacing: 3px; text-transform: uppercase; }
 
-        footer { background: var(--midnight-navy); padding: 60px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
-        .footer-logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 8px; color: var(--pure-white); margin-bottom: 20px; }
-        .footer-credit { font-size: 0.7rem; color: rgba(255,255,255,0.3); letter-spacing: 4px; text-transform: uppercase; }
-   /* ========================================= */
-        /* MOBILE OPTIMIZATION FOR INDEX.HTML        */
-        /* ========================================= */
+        /* Mobile */
         @media (max-width: 768px) {
-            /* إصلاح شريط التنقل */
-            .navbar {
-                flex-direction: column;
-                padding: 15px;
-                gap: 20px;
-                text-align: center;
-            }
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
-            }
-            .client-portal-btn {
-                width: 100%;
-                text-align: center;
-                padding: 12px;
-                margin-top: 10px;
-            }
-
-            /* إصلاح الهوامش للقطاعات */
-            section {
-                padding: 120px 20px 60px 20px;
-            }
-
-            /* تصغير الخطوط الضخمة في الواجهة */
-            .hero h1 {
-                font-size: 2.5rem;
-                margin-bottom: 15px;
-            }
-            .hero p {
-                font-size: 1rem;
-            }
-
-            /* تحويل شبكة الكروت إلى عمود واحد */
-            .about-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            .feature-card {
-                padding: 30px 20px;
-            }
-
-            /* تذييل الصفحة */
-            footer {
-                padding: 30px 20px;
-            }
-            .footer-logo {
-                font-size: 1.2rem;
-            }
+            .navbar { padding: 15px; flex-direction: column; gap: 15px; background: var(--void-black); }
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .hero h1 { font-size: 2.5rem; }
+            .comparison-container { height: 400px; }
+            .masonry-grid { column-count: 1; }
+            .hero-overlay { background: linear-gradient(0deg, var(--void-black) 10%, rgba(5,5,5,0.7) 100%); }
+            .signature-seal { display: none; }
         }
     </style>
-    <link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 </head>
 <body>
 
-    <div class="bg-grid"></div>
-    
-    <svg class="svg-watermark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="10,20 40,40 40,80 10,80" fill="#FFFFFF" />
-        <polygon points="35,45 65,60 65,70 35,55" fill="#FFFFFF" />
-        <polygon points="60,50 90,70 90,80 60,60" fill="#FFFFFF" />
-        <polygon points="60,20 90,20 90,65 60,45" fill="#C8A96A" />
-    </svg>
+    <!-- Preloader -->
+    <div id="preloader">
+        <svg class="loader-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,20 40,40 40,80 10,80" />
+            <polygon points="35,45 65,60 65,70 35,55" />
+            <polygon points="60,50 90,70 90,80 60,60" />
+            <polygon points="60,20 90,20 90,65 60,45" />
+        </svg>
+    </div>
 
-    <nav class="navbar">
+    <!-- Signature Seal -->
+    <div class="signature-seal">SYSTEM ARCHITECTURE BY MOHAMED FAYEZ</div>
+
+    <nav class="navbar" id="navbar">
         <a href="#" class="brand-logo">
             <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="10,20 40,40 40,80 10,80" fill="#FFFFFF" />
@@ -175,47 +136,155 @@
                 <polygon points="60,50 90,70 90,80 60,60" fill="#FFFFFF" />
                 <polygon points="60,20 90,20 90,65 60,45" fill="#C8A96A" />
             </svg>
-            EXOR&Lambda;
+            NEXOR&Lambda;
         </a>
         <div class="nav-links">
-            <a href="#home">Home</a>
-            <a href="#about">Who We Are</a>
-            <a href="#services">Services</a>
+            <a href="#identity">Identity Lock</a>
+            <a href="#portfolio">Architecture</a>
             <a href="login.html" class="client-portal-btn">Client Portal</a>
         </div>
     </nav>
 
-    <section id="home" class="hero">
-        <h1>Engineering Premium<br><span>Brand Communication</span></h1>
-        <p>We build intelligent content systems that combine strategy, creativity, and advanced technology to help ambitious brands communicate with clarity, consistency, and impact.</p>
-        <a href="#about" class="hero-cta">Discover NEXORA</a>
+    <section class="hero">
+        <video autoplay muted loop playsinline class="hero-video">
+            <!-- استبدل الرابط بفيديو العرض الخاص بك -->
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay"></div>
+        <h1>Engineered Visuals,<br><span>Not Just Generated.</span></h1>
+        <p>Advanced AI direction, absolute identity retention, and cinematic lighting architectures built for enterprise-grade commercial output.</p>
     </section>
 
-    <section id="about">
+    <section id="identity">
         <div class="section-header">
-            <h2 class="section-title">Why <span>NEXORA</span></h2>
-            <div class="section-subtitle">We combine intelligence, creativity, and engineering</div>
+            <h2 class="section-title">Identity <span>Proof</span></h2>
+            <div class="section-desc" style="color: var(--prestige-gold); font-size: 0.8rem; letter-spacing: 2px;">100% FACIAL RETENTION CAPABILITY</div>
         </div>
-        <div class="about-grid">
-            <div class="feature-card">
-                <h3>01 / Precision</h3>
-                <p>Engineered clarity in every detail we create. Our work sits at the intersection of brand thinking and content engineering.</p>
+        
+        <div class="comparison-container">
+            <!-- استبدل الروابط بالصور الفعلية -->
+            <img src="https://via.placeholder.com/1000x600/1E293B/FFFFFF?text=FINAL+ENGINEERED+OUTPUT" class="comparison-img img-after" alt="Final">
+            <img src="https://via.placeholder.com/1000x600/050505/C8A96A?text=RAW+AI+GENERATION" class="comparison-img img-before" id="imgBefore" alt="Raw">
+            <input type="range" min="0" max="100" value="50" class="comparison-slider" id="compSlider">
+            <div class="slider-button" id="sliderBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#050505" stroke-width="2"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3"/></svg>
             </div>
-            <div class="feature-card">
-                <h3>02 / AI Efficiency</h3>
-                <p>We leverage advanced AI to accelerate production without compromising the premium quality of the output.</p>
+        </div>
+    </section>
+
+    <section id="portfolio">
+        <div class="section-header">
+            <h2 class="section-title">The <span>Architecture</span></h2>
+            <div class="section-desc" style="color: var(--prestige-gold); font-size: 0.8rem; letter-spacing: 2px;">HOVER TO REVEAL ENGINEERING BLUEPRINTS</div>
+        </div>
+
+        <div class="masonry-grid">
+            <!-- Item 1: Vertical Video -->
+            <div class="masonry-item">
+                <div class="performance-tag">98% RETENTION</div>
+                <div class="media-viewport vertical">
+                    <img src="https://via.placeholder.com/400x711/1E293B/FFFFFF?text=TIKTOK+REEL" alt="Reel">
+                </div>
+                <div class="blueprint-overlay">
+                    <div class="blueprint-row">
+                        <div class="bp-label">Engine</div>
+                        <div class="bp-value">Kling AI + Custom Scripting</div>
+                    </div>
+                    <div class="blueprint-row">
+                        <div class="bp-label">Lighting Logic</div>
+                        <div class="bp-value">Cinematic high contrast, volumetric fog</div>
+                    </div>
+                    <div class="blueprint-row">
+                        <div class="bp-label">Storytelling Hook</div>
+                        <div class="bp-value">Paced reveal within first 2.5 seconds</div>
+                    </div>
+                </div>
             </div>
-            <div class="feature-card">
-                <h3>03 / Impact</h3>
-                <p>We focus on outcomes that drive growth, build brand value, and create lasting connections with your audience.</p>
+
+            <!-- Item 2: Horizontal Image -->
+            <div class="masonry-item">
+                <div class="performance-tag">CTR: +14.2%</div>
+                <div class="media-viewport">
+                    <img src="https://via.placeholder.com/600x400/050505/C8A96A?text=MEDICAL+TECH+ASSET" alt="Medical">
+                </div>
+                <div class="blueprint-overlay">
+                    <div class="blueprint-row">
+                        <div class="bp-label">Engine</div>
+                        <div class="bp-value">Midjourney V6 (Raw Mode)</div>
+                    </div>
+                    <div class="blueprint-row">
+                        <div class="bp-label">Texture Mapping</div>
+                        <div class="bp-value">Hyper-realistic polymer surfaces, macro lens 100mm</div>
+                    </div>
+                    <div class="blueprint-row">
+                        <div class="bp-label">Objective</div>
+                        <div class="bp-value">Phase 1 hero image for ophthalmic probes</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 3: Horizontal Image -->
+            <div class="masonry-item">
+                <div class="performance-tag">CONVERSION: +8%</div>
+                <div class="media-viewport">
+                    <img src="https://via.placeholder.com/600x600/1E293B/FFFFFF?text=LUXURY+FASHION" alt="Fashion">
+                </div>
+                <div class="blueprint-overlay">
+                    <div class="blueprint-row">
+                        <div class="bp-label">Engine</div>
+                        <div class="bp-value">Nano Banana + Meta AI Extend</div>
+                    </div>
+                    <div class="blueprint-row">
+                        <div class="bp-label">Identity Lock</div>
+                        <div class="bp-value">100% matching, zero beautification</div>
+                    </div>
+                    <div class="blueprint-row">
+                        <div class="bp-label">Brand</div>
+                        <div class="bp-value">Nîmes Denim Identity</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <footer>
         <div class="footer-logo">NEXOR&Lambda;</div>
-        <div class="footer-credit">SYSTEM ARCHITECTURE BY MOHAMED FAYEZ</div>
+        <div class="footer-credit">AI CREATIVE ENGINEERING & SYSTEM ARCHITECTURE BY MOHAMED FAYEZ</div>
     </footer>
 
+    <script>
+        // Preloader Logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('preloader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('preloader').style.display = 'none';
+                }, 600);
+            }, 2000);
+        });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(5, 5, 5, 0.98)';
+                nav.style.borderBottom = '1px solid rgba(200, 169, 106, 0.3)';
+            } else {
+                nav.style.background = 'rgba(5, 5, 5, 0.8)';
+                nav.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+            }
+        });
+
+        // Before/After Slider Logic
+        const slider = document.getElementById('compSlider');
+        const beforeImg = document.getElementById('imgBefore');
+        const sliderBtn = document.getElementById('sliderBtn');
+
+        slider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            beforeImg.style.width = `${value}%`;
+            sliderBtn.style.left = `${value}%`;
+        });
+    </script>
 </body>
 </html>
