@@ -75,9 +75,9 @@
         .section-title span { font-weight: 700; color: var(--precision-white); }
 
         /* Interactive Comparison Zone */
-        .comparison-container { position: relative; width: 100%; max-width: 1000px; height: 600px; margin: 0 auto; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; }
-        .comparison-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-        .img-after { z-index: 1; }
+       /* Interactive Comparison Zone */
+        .comparison-container { position: relative; width: 100%; max-width: 1000px; aspect-ratio: 16/9; margin: 0 auto; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: #000; }
+        .comparison-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }        .img-after { z-index: 1; }
         .img-before { z-index: 2; width: 50%; border-right: 2px solid var(--prestige-gold); }
         .comparison-slider { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; z-index: 3; cursor: ew-resize; }
         .slider-button { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: var(--prestige-gold); border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 2; pointer-events: none; }
@@ -258,16 +258,18 @@
 
                 grid.innerHTML = '';
 
-                snapshot.forEach(doc => {
+  snapshot.forEach(doc => {
                     const data = doc.data();
-                    const isVideo = data.mimeType.includes('video');
+                    const isVideo = data.mimeType && data.mimeType.includes('video');
+                    
+                    // استخدام رابط عرض مباشر بدلاً من الرابط المصغر لحل مشكلة انتهاء الصلاحية
+                    const viewUrl = `https://drive.google.com/uc?export=view&id=${doc.id}`;
                     const directUrl = `https://docs.google.com/uc?export=download&id=${doc.id}`;
-                    // استخدام الصورة المصغرة في حالة الفيديوهات لتسريع التحميل
-                    const previewUrl = isVideo ? directUrl : data.thumbnail;
+                    
+                    const previewUrl = isVideo ? directUrl : viewUrl;
                     
                     const formatClass = isVideo ? 'vertical' : 'horizontal';
                     
-                    // توليد بيانات أداء احترافية عشوائية للعرض
                     const perfTags = isVideo 
                         ? ['98% RETENTION', 'VIRAL REACH', '1.2M+ VIEWS'] 
                         : ['CTR: +14.2%', 'CONVERSION: +8%', 'PREMIUM ASSET'];
